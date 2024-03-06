@@ -1,5 +1,4 @@
 # open-maneki
-Logical dividend visualization tool
 
 open-manekiは、ローカルネットワーク上で利用する配当可視化ツールです。
 
