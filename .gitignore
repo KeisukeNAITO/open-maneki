@@ -3,6 +3,8 @@ node_modules
 /build
 /.svelte-kit
 /package
+prisma/maneki.db*
+prisma/migrations
 .env
 .env.*
 !.env.example

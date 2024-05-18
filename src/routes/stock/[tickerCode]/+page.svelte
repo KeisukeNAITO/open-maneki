@@ -1,5 +1,9 @@
 <script>
+	import StockCard from './StockCard.svelte';
+
 	export let data;
 </script>
 
-<h1>{data.params.tickerCode}</h1>
+{#each data.stocks as stock}
+	<StockCard {stock} />
+{/each}

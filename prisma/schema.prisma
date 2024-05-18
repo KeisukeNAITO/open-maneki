@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Stock {
+  stockId         Int       @id @default(autoincrement())
+  code            String    @unique
+  name            String    @unique
+  share           Int
+  price           Float
+  accountType     String
+  createAt        DateTime  @default(now())
+  updateAt        DateTime  @updatedAt
+
+  @@unique([code, accountType])
+}
+
+model Dividend {
+  dividendId      Int       @id @default(autoincrement())
+  code            String    @unique
+  name            String    @unique
+  amount          Float
+  createAt        DateTime  @default(now())
+  updateAt        DateTime  @updatedAt
+}
