@@ -22,13 +22,13 @@ export const actions = {
 } satisfies Actions;
 
 const putValidator = (data: FormData) => {
-	if (!_.isString(data.get('code'))) {
+	if (_.isEmpty(data.get('code')) || !_.isString(data.get('code'))) {
 		return false;
-	} else if (!_.isString(data.get('name'))) {
+	} else if (_.isEmpty(data.get('name')) || !_.isString(data.get('name'))) {
 		return false;
-	} else if (!_.isNumber(Number(data.get('share')))) {
+	} else if (_.isEmpty(data.get('share')) || !_.isNumber(Number(data.get('share')))) {
 		return false;
-	} else if (!_.isNumber(Number(data.get('price')))) {
+	} else if (_.isEmpty(data.get('price')) || !_.isNumber(Number(data.get('price')))) {
 		return false;
 	} else {
 		return true;

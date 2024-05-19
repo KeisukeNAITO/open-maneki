@@ -2,30 +2,13 @@
 	export let stock;
 </script>
 
-<table>
-	<tr>
-		<td>code</td><td>{stock.code}</td>
-	</tr>
-	<tr>
-		<td>name</td><td>{stock.name}</td>
-	</tr>
-	<tr>
-		<td>share</td><td>{stock.share}</td>
-	</tr>
-	<tr>
-		<td>price</td><td>{stock.price}</td>
-	</tr>
-</table>
-
-<style>
-	table {
-		margin: 0.8em 0;
-		border-radius: 0.2em;
-		background-color: #dddddd;
-		color: #333333;
-	}
-	td {
-		padding: 0.2em 0.5em;
-		text-align: left;
-	}
-</style>
+<div class="card w-96 bg-neutral">
+	<div class="card-body">
+		<h2 class="card-title"><span class="font-normal">{stock.code}</span> {stock.name}</h2>
+		<p>保有株数 {stock.share}</p>
+		<p>取得株価 {stock.price}</p>
+		<div class="card-actions justify-end">
+			<a href="../../"><button class="btn btn-outline btn-accent btn-xs">戻る</button></a>
+		</div>
+	</div>
+</div>

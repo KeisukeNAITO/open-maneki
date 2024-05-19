@@ -1,13 +1,16 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import RegisterCard from './RegisterCard.svelte';
-	import AssetCard from './AssetCard.svelte';
+	import AssetListTable from './AssetListTable.svelte';
 
 	export let data: PageData;
 </script>
 
-{#each data.assetList as asset}
-	<AssetCard {asset} />
-{/each}
-
-<RegisterCard />
+<div class="flex flex-col w-full lg:flex-row">
+	<div class="grid h-20 flex-grow card bg-base-300 rounded-box place-items-center">
+		<h1>Dividend visualization tool.</h1>
+	</div>
+	<div class="divider divider-horizontal"></div>
+	<div class="grid flex-grow card rounded-box">
+		<AssetListTable {data} />
+	</div>
+</div>
