@@ -15,9 +15,6 @@
 	<tr>
 		<td>price</td><td>{stock.price}</td>
 	</tr>
-	<tr>
-		<td>accountType</td><td>{stock.accountType}</td>
-	</tr>
 </table>
 
 <style>

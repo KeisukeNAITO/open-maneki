@@ -4,7 +4,6 @@ export type AssetCard = {
 	name: string;
 	share: number;
 	price: number;
-	accountType: string;
 	dividendId: number;
 	amount: number;
 };

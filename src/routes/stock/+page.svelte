@@ -26,10 +26,6 @@
 		<input type="text" id="price" name="price" placeholder="Price" />
 	</div>
 	<div>
-		<label for="accountType">AccountType</label>
-		<input type="text" id="accountType" name="accountType" placeholder="AccountType" />
-	</div>
-	<div>
 		<button type="submit">Add</button>
 	</div>
 </form>

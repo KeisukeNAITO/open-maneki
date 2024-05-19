@@ -14,8 +14,7 @@ export const actions = {
 				code: data.get('code')?.toString() || '',
 				name: data.get('name')?.toString() || '',
 				share: Number(data.get('share')?.toString()),
-				price: Number(data.get('price')?.toString()),
-				accountType: data.get('accountType')?.toString() || ''
+				price: Number(data.get('price')?.toString())
 			};
 			return upsertStock(body);
 		}
@@ -30,8 +29,6 @@ const putValidator = (data: FormData) => {
 	} else if (!_.isNumber(Number(data.get('share')))) {
 		return false;
 	} else if (!_.isNumber(Number(data.get('price')))) {
-		return false;
-	} else if (!_.isString(data.get('accountType'))) {
 		return false;
 	} else {
 		return true;

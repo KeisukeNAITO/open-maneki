@@ -13,11 +13,8 @@ model Stock {
   name            String    @unique
   share           Int
   price           Float
-  accountType     String
   createAt        DateTime  @default(now())
   updateAt        DateTime  @updatedAt
-
-  @@unique([code, accountType])
 }
 
 model Dividend {

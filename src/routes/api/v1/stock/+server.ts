@@ -21,8 +21,7 @@ export async function PUT({ request }) {
 		code: body.code,
 		name: body.name,
 		share: body.share,
-		price: body.price,
-		accountType: body.accountType
+		price: body.price
 	};
 	return json(await putStock(param));
 }
@@ -35,8 +34,6 @@ const putValidator = (body: any) => {
 	} else if (!_.isNumber(body.share)) {
 		return false;
 	} else if (!_.isNumber(body.price)) {
-		return false;
-	} else if (!_.isString(body.accountType)) {
 		return false;
 	} else {
 		return true;
