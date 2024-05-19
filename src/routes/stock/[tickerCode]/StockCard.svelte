@@ -3,7 +3,7 @@
 </script>
 
 <div class="card w-96 bg-neutral">
-	<div class="card-body">
+	<div class="card-body text-white">
 		<h2 class="card-title"><span class="font-normal">{stock.code}</span> {stock.name}</h2>
 		<p>保有株数 {stock.share}</p>
 		<p>取得株価 {stock.price}</p>
