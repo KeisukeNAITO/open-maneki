@@ -8,7 +8,7 @@
 		<p>保有株数 {stock.share}</p>
 		<p>取得株価 {stock.price}</p>
 		<div class="card-actions justify-end">
-			<a href="../../"><button class="btn btn-outline btn-accent btn-xs">戻る</button></a>
+			<a href="/"><button class="btn btn-outline btn-accent btn-xs">戻る</button></a>
 		</div>
 	</div>
 </div>

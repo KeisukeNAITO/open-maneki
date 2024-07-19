@@ -1,4 +1,4 @@
-import type { AssetCard } from '$lib/const/model/rootView';
+import type { AssetCard } from '$lib/model/rootView';
 
 /** @type {import('./$types').PageLoad} */
 export const load = async ({ parent, data }) => {
