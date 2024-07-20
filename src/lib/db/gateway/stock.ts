@@ -15,6 +15,7 @@ export const selectSomeStocks = async (code: string) => {
 export const upsertStock = async (param: StockParam) => {
 	const existRecord = await db.stock.findMany({
 		where: {
+			market: param.market,
 			code: param.code
 		}
 	});
@@ -36,8 +37,9 @@ export const upsertStock = async (param: StockParam) => {
 };
 
 export interface StockParam {
-	code: string;
-	name: string;
-	share: number;
-	price: number;
+	market:		string;
+	code:		string;
+	name:		string;
+	share:		number;
+	price:		number;
 }

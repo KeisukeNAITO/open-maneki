@@ -9,8 +9,22 @@ datasource db {
 
 model Stock {
   stockId         Int       @id @default(autoincrement())
+  market          String
   code            String    @unique
   name            String    @unique
+  share           Int
+  price           Float
+  createAt        DateTime  @default(now())
+  updateAt        DateTime  @updatedAt
+}
+
+model Trade {
+  tradeId         Int       @id @default(autoincrement())
+  market          String
+  code            String
+  name            String
+  transaction     String
+  tradeAt         DateTime  @default(now())
   share           Int
   price           Float
   createAt        DateTime  @default(now())
