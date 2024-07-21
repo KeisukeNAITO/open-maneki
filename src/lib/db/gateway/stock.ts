@@ -37,9 +37,9 @@ export const upsertStock = async (param: StockParam) => {
 };
 
 export interface StockParam {
-	market:		string;
-	code:		string;
-	name:		string;
-	share:		number;
-	price:		number;
+	market: string;
+	code: string;
+	name: string;
+	share: number;
+	price: number;
 }

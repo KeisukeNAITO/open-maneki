@@ -1,3 +1,4 @@
+import { TRADE_TYPE } from '$lib/const/const';
 import { upsertStock, type StockParam } from '$lib/db/gateway/stock';
 import { insertTrade, selectTradeHistoryByTicker, type TradeParam } from '$lib/db/gateway/trade';
 import { type Actions } from '@sveltejs/kit';
@@ -19,10 +20,12 @@ export const actions = {
 				share: Number(data.get('share')!.toString()),
 				price: Number(data.get('price')!.toString())
 			};
-			await insertTrade(body)
+			await insertTrade(body);
 
-			const tradeHistory: TradeParam[] = sortAscTradeAt(await selectTradeHistoryByTicker(body.market, body.code))
-			await upsertStock(buildStockParam(tradeHistory))
+			const tradeHistory: TradeParam[] = sortAscTradeAt(
+				await selectTradeHistoryByTicker(body.market, body.code)
+			);
+			await upsertStock(buildStockParam(tradeHistory));
 			return {};
 		}
 	}
@@ -49,45 +52,45 @@ const putValidator = (data: FormData) => {
 };
 
 const sortAscTradeAt = (tradeParams: TradeParam[]) => {
-	return tradeParams.sort(
-		(a, b) => {
-			if(a.tradeAt > b.tradeAt) {
-				return 1;
-			}else{
-				return -1;
-			}
+	return tradeParams.sort((a, b) => {
+		if (a.tradeAt > b.tradeAt) {
+			return 1;
+		} else {
+			return -1;
 		}
-	)
-}
+	});
+};
 
 const buildStockParam = (tradeParams: TradeParam[]) => {
 	// TODO: 会計的に正確な計算方法に変更する
-	const lastIndex = tradeParams.length-1
+	const lastIndex = tradeParams.length - 1;
 	let tempStock: StockParam = {
 		market: tradeParams[0].market,
 		code: tradeParams[0].code,
 		name: tradeParams[0].name,
 		share: 0,
 		price: 0
-	}
+	};
 
-	for(let i = 0; i <= lastIndex; i++) {
-		if(tradeParams[i].transaction === 'buy') {
-			tempStock.price = ((tempStock.price * tempStock.share) + (tradeParams[i].price * tradeParams[i].share)) / (tempStock.share + tradeParams[i].share)
+	for (let i = 0; i <= lastIndex; i++) {
+		if (tradeParams[i].transaction === TRADE_TYPE.BUY) {
+			tempStock.price =
+				(tempStock.price * tempStock.share + tradeParams[i].price * tradeParams[i].share) /
+				(tempStock.share + tradeParams[i].share);
 			tempStock.share += tradeParams[i].share;
-		} else if (tradeParams[i].transaction === 'sell') {
+		} else if (tradeParams[i].transaction === TRADE_TYPE.SELL) {
 			tempStock.share -= tradeParams[i].share;
 		} else {
-			console.log("Warning!")
+			console.log('Warning!');
 		}
 	}
 
 	switch (tempStock.market) {
 		case 'JPX':
-			tempStock.price = Math.ceil(tempStock.price)
+			tempStock.price = Math.ceil(tempStock.price);
 			break;
 		default:
 			break;
 	}
-	return tempStock
-}
+	return tempStock;
+};
