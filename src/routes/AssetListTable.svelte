@@ -7,6 +7,7 @@
 		<thead>
 			<tr>
 				<th>#</th>
+				<th>市場</th>
 				<th>銘柄コード</th>
 				<th>銘柄名</th>
 				<th>株数</th>
@@ -20,6 +21,7 @@
 			{#each data.assetList as asset}
 				<tr>
 					<th>{asset.stockId}</th>
+					<th>{asset.market}</th>
 					<td>{asset.code}</td>
 					<td>{asset.name}</td>
 					<td>{asset.share}</td>
@@ -27,13 +29,14 @@
 					<td>{asset.dividendId || '-'}</td>
 					<td>{asset.amount || '-'}</td>
 					<th
-						><a href="/stock/{asset.code}"
-							><button class="btn btn-outline btn-primary btn-xs">編集</button>
+						><a href="/stock/{asset.code}">
+							<button class="btn btn-outline btn-primary btn-xs">編集</button>
 						</a></th
 					>
 				</tr>
 			{/each}
 			<tr>
+				<th></th>
 				<th></th>
 				<th></th>
 				<th></th>

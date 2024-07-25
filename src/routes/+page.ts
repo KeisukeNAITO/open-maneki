@@ -4,7 +4,8 @@ import type { AssetCard } from '$lib/model/rootView';
 export const load = async ({ parent, data }) => {
 	await parent();
 
-	const assetList = buildAssetList(data.stocks, data.dividends);
+	const assetList = buildAssetList(data.stocks, data.dividends).filter(n => n.share !== 0);
+	
 	return {
 		assetList: assetList
 	};

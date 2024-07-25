@@ -8,7 +8,7 @@
 </script>
 
 <div class="flex flex-col min-h-screen">
-	<header class="flex items-center justify-between px-6 py-3">
+	<header class="flex items-center justify-between bg-primary px-6 py-3">
 		<h1 class="text-2xl font-bold text-xl">
 			<a href="/" class="font-bold text-xl">Open-Maneki</a>
 		</h1>
@@ -21,7 +21,7 @@
 		<slot />
 	</div>
 
-	<footer class="footer items-center p-4">
+	<footer class="footer items-center bg-primary p-4">
 		<aside class="items-center grid-flow-col">
 			<svg
 				width="36"
@@ -50,11 +50,9 @@
 
 <style>
 	header {
-		background-color: #991b1b;
 		color: #ffffff;
 	}
 	footer {
-		background-color: #991b1b;
 		color: #ffffff;
 	}
 </style>
