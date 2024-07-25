@@ -2,7 +2,7 @@
 	import { ChevronDoubleLeftOutline } from 'flowbite-svelte-icons';
 	import { TRADE_TYPE } from '$lib/const/const';
 	export let tradeTransaction: string;
-    
+
 	function changeBuyColor() {
 		tradeTransaction = TRADE_TYPE.BUY;
 	}
@@ -10,7 +10,6 @@
 		tradeTransaction = TRADE_TYPE.SELL;
 	}
 </script>
-
 
 <div
 	class="card bg-base-300 w-96 {tradeTransaction === TRADE_TYPE.BUY
@@ -66,14 +65,14 @@
 	</form>
 	<div class="inline-flex">
 		<a href="/">
-		<button class="bg-base-300 rounded-bl-lg">
-			<ChevronDoubleLeftOutline
-				class="text-neutral w-10 h-8"
-				title={{ id: 'my-title', title: 'Back' }}
-				desc={{ id: 'my-descrip', desc: 'Back to home' }}
-				ariaLabel="red heart"
-			/>
-		</button>
+			<button class="bg-base-300 rounded-bl-lg">
+				<ChevronDoubleLeftOutline
+					class="text-neutral w-10 h-8"
+					title={{ id: 'my-title', title: 'Back' }}
+					desc={{ id: 'my-descrip', desc: 'Back to home' }}
+					ariaLabel="red heart"
+				/>
+			</button>
 		</a>
 	</div>
 </div>

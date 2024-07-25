@@ -5,4 +5,4 @@
 	let tradeTransaction: string = TRADE_TYPE.BUY;
 </script>
 
-<OrderCard {tradeTransaction}/>
+<OrderCard {tradeTransaction} />
