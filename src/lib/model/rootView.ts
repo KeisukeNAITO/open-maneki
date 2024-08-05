@@ -1,5 +1,5 @@
 export type AssetCard = {
-	socketId: number;
+	stockId: number;
 	code: string;
 	name: string;
 	share: number;

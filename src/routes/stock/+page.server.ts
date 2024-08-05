@@ -1,9 +1,17 @@
-import { TRADE_TYPE } from '$lib/const/const';
+import { TRADE_TYPE, CURRENCY_MST } from '$lib/const/const';
+import { selectMarketByName, selectAllMarkets } from '$lib/db/gateway/market';
 import { upsertStock, type StockParam } from '$lib/db/gateway/stock';
 import { insertTrade, selectTradeHistoryByTicker, type TradeParam } from '$lib/db/gateway/trade';
-import { type Actions } from '@sveltejs/kit';
 import _ from 'lodash';
 
+/** @type {import('./$types').PageServerLoad} */
+export const load = async ({}) => {
+	return {
+		markets: await selectAllMarkets()
+	};
+};
+
+/** @type {import('./$types').Actions} */
 export const actions = {
 	default: async ({ request }) => {
 		const data: FormData = await request.formData();
@@ -25,11 +33,11 @@ export const actions = {
 			const tradeHistory: TradeParam[] = sortAscTradeAt(
 				await selectTradeHistoryByTicker(body.market, body.code)
 			);
-			await upsertStock(buildStockParam(tradeHistory));
+			await upsertStock(await buildStockParam(tradeHistory));
 			return {};
 		}
 	}
-} satisfies Actions;
+};
 
 const putValidator = (data: FormData) => {
 	if (_.isEmpty(data.get('transaction')) || !_.isString(data.get('transaction'))) {
@@ -61,7 +69,7 @@ const sortAscTradeAt = (tradeParams: TradeParam[]) => {
 	});
 };
 
-const buildStockParam = (tradeParams: TradeParam[]) => {
+const buildStockParam = async (tradeParams: TradeParam[]) => {
 	// TODO: 会計的に正確な計算方法に変更する
 	const lastIndex = tradeParams.length - 1;
 	let tempStock: StockParam = {
@@ -81,13 +89,18 @@ const buildStockParam = (tradeParams: TradeParam[]) => {
 		} else if (tradeParams[i].transaction === TRADE_TYPE.SELL) {
 			tempStock.share -= tradeParams[i].share;
 		} else {
-			console.log('Warning!');
+			console.log('Warning!'); // FIXME:
 		}
 	}
 
-	switch (tempStock.market) {
-		case 'JPX':
+	const marketDetail = await selectMarketByName(tempStock.market);
+	switch (marketDetail[0].currency) {
+		case CURRENCY_MST.JPY:
 			tempStock.price = Math.ceil(tempStock.price);
+			break;
+		case CURRENCY_MST.USD:
+			console.log(tempStock.price)
+			tempStock.price = Math.ceil(tempStock.price*100)/100;
 			break;
 		default:
 			break;

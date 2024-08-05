@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ChevronDoubleLeftOutline } from 'flowbite-svelte-icons';
 	export let stock;
 </script>
 
@@ -9,7 +10,21 @@
 		<p>保有株数 {stock.share}</p>
 		<p>取得株価 {stock.price}</p>
 		<div class="card-actions justify-end">
-			<a href="/"><button class="btn btn-outline btn-accent btn-xs">戻る</button></a>
+			<a href="/dividend/{stock.code}"
+				><button class="btn btn-outline btn-secondary btn-xs">配当</button></a
+			>
 		</div>
+	</div>
+	<div class="inline-flex">
+		<a href="/">
+			<button class="bg-neutral rounded-bl-lg">
+				<ChevronDoubleLeftOutline
+					class="text-base-100 w-10 h-8"
+					title={{ id: 'my-title', title: 'Back' }}
+					desc={{ id: 'my-descrip', desc: 'Back to home' }}
+					ariaLabel="Back Button"
+				/>
+			</button>
+		</a>
 	</div>
 </div>

@@ -16,6 +16,8 @@ model Stock {
   price           Float
   createAt        DateTime  @default(now())
   updateAt        DateTime  @updatedAt
+
+  @@map("stocks")
 }
 
 model Trade {
@@ -29,13 +31,29 @@ model Trade {
   price           Float
   createAt        DateTime  @default(now())
   updateAt        DateTime  @updatedAt
+
+  @@map("trades")
 }
 
 model Dividend {
   dividendId      Int       @id @default(autoincrement())
+  market          String
   code            String    @unique
   name            String    @unique
-  amount          Float
+  dividend        Float
   createAt        DateTime  @default(now())
   updateAt        DateTime  @updatedAt
+
+  @@map("dividends")
+}
+
+model Market {
+  marketId        Int       @id @default(autoincrement())
+  marketName      String    @unique
+  officialName    String    @unique
+  currency        String
+  createAt        DateTime  @default(now())
+  updateAt        DateTime  @updatedAt
+
+  @@map("mst_market")
 }
