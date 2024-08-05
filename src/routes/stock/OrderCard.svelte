@@ -48,7 +48,7 @@
 		<select id="market" name="market" class="select select-bordered w-full">
 			<option disabled selected>市場</option>
 			{#each markets as market}
-				<option value="{market.marketName}">{market.marketName}</option>
+				<option value={market.marketName}>{market.marketName}</option>
 			{/each}
 		</select>
 		<label class="input input-bordered flex items-center gap-2">

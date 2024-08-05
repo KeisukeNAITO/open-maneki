@@ -5,7 +5,6 @@ const db = new PrismaClient();
 
 async function main() {
 	for (const market of marketMstData) {
-		console.log(market)
 		await db.market.create({
 			data: {
 				marketId: market.marketId,

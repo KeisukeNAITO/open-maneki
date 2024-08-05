@@ -3,4 +3,4 @@ export const TRADE_TYPE = {
 	SELL: 'sell'
 };
 
-export const CURRENCY_MST = {JPY: 'JPY', USD: 'USD'};
+export const CURRENCY_MST = { JPY: 'JPY', USD: 'USD' };

@@ -3,18 +3,18 @@
 		"marketId": 1,
 		"marketName": "TSE",
 		"officialName": "Tokyo Stock Exchange",
-        "currency": "JPY"
+		"currency": "JPY"
 	},
 	{
 		"marketId": 2,
 		"marketName": "NYSE",
 		"officialName": "New York Stock Exchange",
-        "currency": "USD"
+		"currency": "USD"
 	},
 	{
 		"marketId": 3,
 		"marketName": "NASDAQ",
 		"officialName": "National Association of Securities Dealers Automated Quotations",
-        "currency": "USD"
+		"currency": "USD"
 	}
 ]

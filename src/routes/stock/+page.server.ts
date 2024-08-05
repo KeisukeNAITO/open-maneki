@@ -99,8 +99,7 @@ const buildStockParam = async (tradeParams: TradeParam[]) => {
 			tempStock.price = Math.ceil(tempStock.price);
 			break;
 		case CURRENCY_MST.USD:
-			console.log(tempStock.price)
-			tempStock.price = Math.ceil(tempStock.price*100)/100;
+			tempStock.price = Math.ceil(tempStock.price * 100) / 100;
 			break;
 		default:
 			break;
