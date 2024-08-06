@@ -18,4 +18,4 @@ const getSomeStock = async (code: string) => {
 
 const getSomeTradeLogs = async (code: string) => {
 	return selectTradeHistoryByTicker(code);
-}
+};

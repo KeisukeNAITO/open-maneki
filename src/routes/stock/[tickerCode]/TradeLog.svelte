@@ -19,9 +19,7 @@
 				<tr>
 					<th style="display:none">{tradeLog.tradeId}</th>
 					<td>{new Date(tradeLog.tradeAt).toISOString().slice(0, 10)}</td>
-					<td>{tradeLog.transaction === TRADE_TYPE.BUY
-						? '買い'
-						: '売り'}</td>
+					<td>{tradeLog.transaction === TRADE_TYPE.BUY ? '買い' : '売り'}</td>
 					<td>{tradeLog.share}</td>
 					<td>{tradeLog.price}</td>
 				</tr>
