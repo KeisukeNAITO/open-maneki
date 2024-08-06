@@ -2,8 +2,7 @@
 	import StockCard from './StockCard.svelte';
 
 	export let data;
+	const stock = data.stocks[0];
 </script>
 
-{#each data.stocks as stock}
-	<StockCard {stock} />
-{/each}
+<StockCard {stock} />

@@ -1,5 +1,5 @@
 import {
-	selectSomeStocks,
+	selectStockByTicker,
 	selectAllStocks,
 	upsertStock,
 	type StockParam
@@ -52,7 +52,7 @@ export async function GET({ url }) {
 
 const getStocks = async (code: string | null) => {
 	if (code) {
-		return selectSomeStocks(code);
+		return selectStockByTicker(code);
 	} else {
 		return selectAllStocks();
 	}

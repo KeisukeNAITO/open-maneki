@@ -1,4 +1,4 @@
-import { selectSomeStocks } from '$lib/db/gateway/stock.js';
+import { selectStockByTicker } from '$lib/db/gateway/stock.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ params }) => {
@@ -10,5 +10,5 @@ export const load = async ({ params }) => {
 };
 
 const getSomeStock = async (code: string) => {
-	return selectSomeStocks(code);
+	return selectStockByTicker(code);
 };

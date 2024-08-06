@@ -4,7 +4,7 @@ export const selectAllStocks = async () => {
 	return db.stock.findMany();
 };
 
-export const selectSomeStocks = async (code: string) => {
+export const selectStockByTicker = async (code: string) => {
 	return db.stock.findMany({
 		where: {
 			code: code
