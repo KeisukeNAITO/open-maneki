@@ -1,9 +1,8 @@
 import db from '$lib/db/prisma';
 
-export const selectTradeHistoryByTicker = async (market: string, code: string) => {
+export const selectTradeHistoryByTicker = async (code: string) => {
 	return db.trade.findMany({
 		where: {
-			market: market,
 			code: code
 		}
 	});

@@ -31,7 +31,7 @@ export const actions = {
 			await insertTrade(body);
 
 			const tradeHistory: TradeParam[] = sortAscTradeAt(
-				await selectTradeHistoryByTicker(body.market, body.code)
+				await selectTradeHistoryByTicker(body.code)
 			);
 			await upsertStock(await buildStockParam(tradeHistory));
 			return {};
