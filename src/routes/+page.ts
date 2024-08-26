@@ -17,6 +17,7 @@ const buildAssetList = (stocks: any, dividends: any) => {
 		let isMerged: boolean = false;
 		for (const dividend of dividends) {
 			if (stock.code === dividend.code) {
+				dividend.exDividendDate = new Date(dividend.exDividendDate).toLocaleDateString()
 				const asset: AssetCard = { ...stock, ...dividend };
 				assetList.push(asset);
 				isMerged = true;

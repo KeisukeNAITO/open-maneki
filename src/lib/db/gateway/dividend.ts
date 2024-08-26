@@ -12,6 +12,12 @@ export const selectDividend = async (code: string) => {
 	});
 };
 
+export const insertDividend = async (param: DividendParam) => {
+	return db.dividend.create({
+		data: param
+	});
+};
+
 export const upsertDividend = async (param: DividendParam) => {
 	const existRecord = await db.dividend.findMany({
 		where: {
@@ -36,7 +42,10 @@ export const upsertDividend = async (param: DividendParam) => {
 };
 
 export interface DividendParam {
+	dividendId: number | undefined;
+	market: string;
 	code: string;
 	name: string;
 	amount: number;
+	exDividendDate: Date;
 }

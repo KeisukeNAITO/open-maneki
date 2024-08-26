@@ -40,7 +40,8 @@ model Dividend {
   market          String
   code            String    @unique
   name            String    @unique
-  dividend        Float
+  amount          Float     @default(0)
+  exDividendDate  DateTime  @default(now())
   createAt        DateTime  @default(now())
   updateAt        DateTime  @updatedAt
 

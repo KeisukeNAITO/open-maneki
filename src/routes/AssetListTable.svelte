@@ -12,8 +12,8 @@
 				<th>銘柄名</th>
 				<th>株数</th>
 				<th>株価</th>
-				<th>配当ID</th>
 				<th>配当単価</th>
+				<th>直近配当落ち日</th>
 				<th></th>
 			</tr>
 		</thead>
@@ -26,8 +26,8 @@
 					<td>{asset.name}</td>
 					<td>{asset.share}</td>
 					<td>{asset.price}</td>
-					<td>{asset.dividendId || '-'}</td>
 					<td>{asset.amount || '-'}</td>
+					<td>{asset.exDividendDate || '-'}</td>
 					<th
 						><a href="/stock/{asset.code}">
 							<button class="btn btn-outline btn-primary btn-xs">編集</button>
