@@ -10,9 +10,7 @@
 		<p>保有株数 {stock.share}</p>
 		<p>取得株価 {stock.price}</p>
 		<div class="card-actions justify-end">
-			<a href="/dividend"
-				><button class="btn btn-outline btn-secondary btn-xs">配当</button></a
-			>
+			<a href="/dividend"><button class="btn btn-outline btn-secondary btn-xs">配当</button></a>
 		</div>
 	</div>
 	<div class="inline-flex">
