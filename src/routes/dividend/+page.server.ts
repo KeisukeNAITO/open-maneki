@@ -1,11 +1,19 @@
 import { selectAllMarkets } from '$lib/db/gateway/market';
-import { insertDividend, type DividendParam } from '$lib/db/gateway/dividend.js';
+import {
+	insertDividend,
+	selectDividendByTicker,
+	type DividendParam
+} from '$lib/db/gateway/dividend.js';
+import { selectStockByTicker } from '$lib/db/gateway/stock.js';
 import _ from 'lodash';
 
 /** @type {import('./$types').PageServerLoad} */
-export const load = async ({}) => {
+export const load = async ({ url }) => {
+	const code = url.searchParams.get('code');
 	return {
-		markets: await selectAllMarkets()
+		markets: await selectAllMarkets(),
+		stockInfo: await selectStockByTicker(code),
+		dividendLogs: await selectDividendByTicker(code)
 	};
 };
 

@@ -1,13 +1,18 @@
 import db from '$lib/db/prisma';
+import _ from 'lodash';
 
 export const selectAllStocks = async () => {
 	return db.stock.findMany();
 };
 
-export const selectStockByTicker = async (code: string) => {
+export const selectStockByTicker = async (code: string | null) => {
+	if (_.isEmpty(code)) {
+		return [{}];
+	}
+
 	return db.stock.findMany({
 		where: {
-			code: code
+			code: code!
 		}
 	});
 };

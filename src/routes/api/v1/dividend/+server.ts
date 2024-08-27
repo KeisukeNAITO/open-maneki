@@ -1,5 +1,5 @@
 import {
-	selectDividend,
+	selectDividendByTicker,
 	selectAllDividends,
 	upsertDividend,
 	type DividendParam
@@ -49,7 +49,7 @@ export async function GET({ url }) {
 
 const getDividends = async (code: string | null) => {
 	if (code) {
-		return selectDividend(code);
+		return selectDividendByTicker(code);
 	} else {
 		return selectAllDividends();
 	}
