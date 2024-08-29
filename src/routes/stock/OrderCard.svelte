@@ -44,6 +44,7 @@
 			class="grow"
 			placeholder="売買"
 			bind:value={tradeTransaction}
+			required
 		/>
 		<select id="market" name="market" class="select select-bordered w-full">
 			<option disabled selected>市場</option>
@@ -52,19 +53,27 @@
 			{/each}
 		</select>
 		<label class="input input-bordered flex items-center gap-2">
-			<input type="text" id="code" name="code" class="grow" placeholder="銘柄コード" />
+			<input type="text" id="code" name="code" class="grow" placeholder="銘柄コード" required />
 		</label>
 		<label class="input input-bordered flex items-center gap-2">
-			<input type="text" id="name" name="name" class="grow" placeholder="銘柄名" />
+			<input type="text" id="name" name="name" class="grow" placeholder="銘柄名" required />
 		</label>
 		<label class="input input-bordered flex items-center gap-2">
-			<input type="number" id="share" name="share" class="grow" placeholder="株数" />
+			<input type="number" id="share" name="share" class="grow" placeholder="株数" required />
 		</label>
 		<label class="input input-bordered flex items-center gap-2">
-			<input type="number" id="price" name="price" class="grow" placeholder="株価" />
+			<input
+				type="number"
+				step="0.01"
+				id="price"
+				name="price"
+				class="grow"
+				placeholder="株価"
+				required
+			/>
 		</label>
 		<label class="input input-bordered flex items-center gap-2">
-			<input type="date" id="date" name="date" class="grow" placeholder="受渡日" />
+			<input type="date" id="date" name="date" class="grow" placeholder="受渡日" required />
 		</label>
 		<button type="submit" class="btn btn-secondary">登録</button>
 	</form>

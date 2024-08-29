@@ -43,17 +43,25 @@
 				{/each}
 			</select>
 			<label class="input input-bordered flex items-center gap-2">
-				<input type="text" id="code" name="code" class="grow" placeholder="銘柄コード" />
+				<input type="text" id="code" name="code" class="grow" placeholder="銘柄コード" required />
 			</label>
 			<label class="input input-bordered flex items-center gap-2">
-				<input type="text" id="name" name="name" class="grow" placeholder="銘柄名" />
+				<input type="text" id="name" name="name" class="grow" placeholder="銘柄名" required />
 			</label>
 		{/if}
 		<label class="input input-bordered flex items-center gap-2">
-			<input type="number" id="amount" name="amount" class="grow" placeholder="配当額" />
+			<input
+				type="number"
+				step="0.01"
+				id="amount"
+				name="amount"
+				class="grow"
+				placeholder="配当額"
+				required
+			/>
 		</label>
 		<label class="input input-bordered flex items-center gap-2">
-			<input type="date" id="date" name="date" class="grow" placeholder="配当落ち日" />
+			<input type="date" id="date" name="date" class="grow" placeholder="配当落ち日" required />
 		</label>
 		<button type="submit" class="btn btn-secondary">登録</button>
 	</form>
