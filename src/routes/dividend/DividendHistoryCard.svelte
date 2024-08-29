@@ -4,8 +4,8 @@
 	const isPastRecordDate = (date: Date) => {
 		const today = Date.now();
 		const recordDate = new Date(date).setHours(23, 59, 59, 999);
-		return  recordDate < today;
-	}
+		return recordDate < today;
+	};
 </script>
 
 <div class="overflow-x-auto">
