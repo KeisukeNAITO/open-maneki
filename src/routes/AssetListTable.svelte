@@ -27,7 +27,7 @@
 					<td>{asset.share}</td>
 					<td>{asset.price}</td>
 					<td>{asset.amount || '-'}</td>
-					<td>{asset.exDividendDate || '-'}</td>
+					<td>{asset.recordDate || '-'}</td>
 					<th
 						><a href="/stock/{asset.code}">
 							<button class="btn btn-outline btn-primary btn-xs">編集</button>

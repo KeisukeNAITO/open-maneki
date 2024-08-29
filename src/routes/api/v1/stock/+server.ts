@@ -18,6 +18,8 @@ export async function PUT({ request }) {
 	}
 
 	const param: StockParam = {
+		stockId: body.stockId,
+		market: body.market,
 		code: body.code,
 		name: body.name,
 		share: body.share,

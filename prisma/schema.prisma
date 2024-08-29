@@ -41,7 +41,7 @@ model Dividend {
   code            String    @unique
   name            String    @unique
   amount          Float     @default(0)
-  exDividendDate  DateTime  @default(now())
+  recordDate      DateTime  @default(now())
   createAt        DateTime  @default(now())
   updateAt        DateTime  @updatedAt
 

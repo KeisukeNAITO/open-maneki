@@ -18,9 +18,12 @@ export async function PUT({ request }) {
 	}
 
 	const param: DividendParam = {
+		dividendId: body.dividendId,
+		market: body.market,
 		code: body.code,
 		name: body.name,
-		amount: body.amount
+		amount: body.amount,
+		recordDate: body.recordDate
 	};
 	return json(await putDividend(param));
 }

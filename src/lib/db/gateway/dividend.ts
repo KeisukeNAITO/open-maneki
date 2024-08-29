@@ -52,5 +52,5 @@ export interface DividendParam {
 	code: string;
 	name: string;
 	amount: number;
-	exDividendDate: Date;
+	recordDate: Date;
 }

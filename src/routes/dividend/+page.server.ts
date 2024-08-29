@@ -30,7 +30,7 @@ export const actions = {
 				code: data.get('code')!.toString(),
 				name: data.get('name')!.toString(),
 				amount: Number(data.get('amount')!.toString()),
-				exDividendDate: new Date(data.get('date')!.toString())
+				recordDate: new Date(data.get('date')!.toString())
 			};
 			await insertDividend(body);
 			return {};
