@@ -7,7 +7,7 @@
 	<table class="table table-md table-zebra">
 		<thead>
 			<tr>
-				<th style="display:none">#</th>
+				<th>#</th>
 				<th>取引日</th>
 				<th>売買</th>
 				<th>株数</th>
@@ -17,7 +17,7 @@
 		<tbody>
 			{#each tradeLogs as tradeLog}
 				<tr>
-					<th style="display:none">{tradeLog.tradeId}</th>
+					<td>{tradeLog.tradeId}</td>
 					<td>{new Date(tradeLog.tradeAt).toISOString().slice(0, 10)}</td>
 					<td>{tradeLog.transaction === TRADE_TYPE.BUY ? '買い' : '売り'}</td>
 					<td>{tradeLog.share}</td>

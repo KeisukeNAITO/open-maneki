@@ -13,7 +13,7 @@ export const load = async ({ url }) => {
 	return {
 		markets: await selectAllMarkets(),
 		stockInfo: await selectStockByTicker(code),
-		dividendLogs: await selectDividendByTicker(code)
+		dividendHistory: await selectDividendByTicker(code)
 	};
 };
 
