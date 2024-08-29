@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { ChevronDoubleLeftOutline } from 'flowbite-svelte-icons';
 	import _ from 'lodash';
-	export let dividendRecordCardParam;
-	const markets = dividendRecordCardParam.markets;
-	const stockInfo = dividendRecordCardParam.stockInfo;
+	export let dividendRegisterCardParam;
+	const markets = dividendRegisterCardParam.markets;
+	const stockInfo = dividendRegisterCardParam.stockInfo;
 	const isUpdate = !_.isEmpty(stockInfo);
 </script>
 

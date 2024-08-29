@@ -1,10 +1,10 @@
 <script lang="ts">
-	import DividendRecordCard from './DividendRecordCard.svelte';
+	import DividendRegisterCard from './DividendRegisterCard.svelte';
 	export let data;
-	const dividendRecordCardParam = {
+	const dividendRegisterCardParam = {
 		markets: data.markets,
 		stockInfo: data.stockInfo[0]
 	};
 </script>
 
-<DividendRecordCard {dividendRecordCardParam} />
+<DividendRegisterCard {dividendRegisterCardParam} />
