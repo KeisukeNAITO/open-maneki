@@ -29,8 +29,10 @@
 					<td>{asset.amount || '-'}</td>
 					<td>{asset.recordDate || '-'}</td>
 					<th
-						><a href="/stock/{asset.code}">
-							<button class="btn btn-outline btn-primary btn-xs">編集</button>
+						><a href="/trade?code={asset.code}">
+							<button class="btn btn-outline btn-primary btn-xs">取引</button>
+						</a><a href="/dividend/{asset.code}">
+							<button class="btn btn-outline btn-primary btn-xs">配当</button>
 						</a></th
 					>
 				</tr>
@@ -45,8 +47,8 @@
 				<th></th>
 				<th></th>
 				<th
-					><a href="/stock" class="hover:text-gray-400">
-						<button class="btn btn-outline btn-secondary btn-xs">登録</button>
+					><a href="/trade" class="hover:text-gray-400">
+						<button class="btn btn-outline btn-secondary btn-xs">新規取引</button>
 					</a></th
 				>
 			</tr>

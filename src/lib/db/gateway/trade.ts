@@ -1,9 +1,14 @@
 import db from '$lib/db/prisma';
+import _ from 'lodash';
 
-export const selectTradeHistoryByTicker = async (code: string) => {
+export const selectTradeHistoryByTicker = async (code: string | null) => {
+	if (_.isEmpty(code)) {
+		return [{}];
+	}
+
 	return db.trade.findMany({
 		where: {
-			code: code
+			code: code!
 		}
 	});
 };
