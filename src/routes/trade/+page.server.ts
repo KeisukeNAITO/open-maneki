@@ -42,9 +42,7 @@ export const actions = {
 			};
 			await insertTrade(body);
 
-			const tradeHistory: TradeParam[] = sortAscTradeAt(
-				await selectTradeHistoryByTicker(body.code)
-			);
+			const tradeHistory: TradeParam[] = await selectTradeHistoryByTicker(body.code);
 			await upsertStock(await buildStockParam(tradeHistory));
 			return {};
 		}
@@ -69,16 +67,6 @@ const putValidator = (data: FormData) => {
 	} else {
 		return true;
 	}
-};
-
-const sortAscTradeAt = (tradeParams: TradeParam[]) => {
-	return tradeParams.sort((a, b) => {
-		if (a.tradeAt > b.tradeAt) {
-			return 1;
-		} else {
-			return -1;
-		}
-	});
 };
 
 const buildStockParam = async (tradeParams: TradeParam[]) => {

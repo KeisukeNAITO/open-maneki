@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { ChevronDoubleLeftOutline } from 'flowbite-svelte-icons';
 	export let stockInfo;
 </script>
 
