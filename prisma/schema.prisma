@@ -38,8 +38,8 @@ model Trade {
 model Dividend {
   dividendId      Int       @id @default(autoincrement())
   market          String
-  code            String    @unique
-  name            String    @unique
+  code            String
+  name            String
   amount          Float     @default(0)
   recordDate      DateTime  @default(now())
   createAt        DateTime  @default(now())

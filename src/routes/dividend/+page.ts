@@ -1,5 +1,3 @@
-import type { DividendParam } from '$lib/db/gateway/dividend.js';
-
 /** @type {import('./$types').PageLoad} */
 export const load = async ({ parent, data }) => {
 	await parent();

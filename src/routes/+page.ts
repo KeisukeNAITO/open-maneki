@@ -13,6 +13,7 @@ export const load = async ({ parent, data }) => {
 
 const buildAssetList = (stocks: any, dividends: any) => {
 	const assetList: AssetCard[] = [];
+	// FIXME: 直近配当落ち日が直近の日付になっていない
 	for (const stock of stocks) {
 		let isMerged: boolean = false;
 		for (const dividend of dividends) {
