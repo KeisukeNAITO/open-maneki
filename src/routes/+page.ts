@@ -4,16 +4,24 @@ import type { AssetCard } from '$lib/model/rootView';
 export const load = async ({ parent, data }) => {
 	await parent();
 
-	const assetList = buildAssetList(data.stocks, data.dividends).filter((n) => n.share !== 0);
+	const stockList = data.stocks.filter((n) => n.share > 0);
+	const dividendList = nextDividend(data.dividends);
+	const assetList = buildAssetList(stockList, dividendList);
 
 	return {
 		assetList: assetList
 	};
 };
 
+const nextDividend = (dividends: any) => {
+	dividends = dividends.filter(
+		(n) => new Date(n.recordDate).setHours(0, 0, 0, 0) >= new Date(Date.now()).setHours(0, 0, 0, 0)
+	);
+	return dividends;
+};
+
 const buildAssetList = (stocks: any, dividends: any) => {
 	const assetList: AssetCard[] = [];
-	// FIXME: 直近配当落ち日が直近の日付になっていない
 	for (const stock of stocks) {
 		let isMerged: boolean = false;
 		for (const dividend of dividends) {
