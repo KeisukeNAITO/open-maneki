@@ -14,6 +14,7 @@
 				<th>株価</th>
 				<th>配当単価</th>
 				<th>直近配当落ち日</th>
+				<th>直前配当落ち日</th>
 				<th></th>
 			</tr>
 		</thead>
@@ -28,6 +29,7 @@
 					<td>{asset.price}</td>
 					<td>{asset.amount || '-'}</td>
 					<td>{asset.recordDate || '-'}</td>
+					<td>{asset.previousRecordDate || '-'}</td>
 					<th
 						><a href="/trade?code={asset.code}">
 							<button class="btn btn-outline btn-primary btn-xs">取引</button>

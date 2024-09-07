@@ -6,4 +6,6 @@ export type AssetCard = {
 	price: number;
 	dividendId: number;
 	amount: number;
+	recordDate: Date;
+	previousRecordDate: Date;
 };
