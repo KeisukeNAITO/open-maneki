@@ -29,7 +29,8 @@ const buildDividendInfoList = (tickerList: string[], dividendList: any) => {
 		const nextDividendInfo = extractNextDividendSchedule(sortedDividendInfo);
 		const previousDividendInfo = extractPreviousDividendSchedule(sortedDividendInfo);
 		const previousRecordDate = previousDividendInfo.recordDate || undefined;
-		dividendInfoList.push({ ...nextDividendInfo, previousRecordDate });
+		const progressRate = calcProgressRate(previousDividendInfo.recordDate, nextDividendInfo.recordDate) || undefined;
+		dividendInfoList.push({ ...nextDividendInfo, previousRecordDate, progressRate });
 	}
 	return dividendInfoList;
 };
@@ -63,6 +64,14 @@ const extractPreviousDividendSchedule = (dividendInfo: any) => {
 			.at(-1) || {}
 	);
 };
+
+const calcProgressRate = (previousDate: Date | undefined, nextDate: Date | undefined) => {
+	if(!_.isDate(previousDate) || !_.isDate(nextDate)) {
+		return undefined
+	}
+	const today = new Date(Date.now()).setHours(0, 0, 0, 0)
+	return Math.round((today - previousDate)/(nextDate - previousDate)*1000)/1000
+}
 
 const buildAssetInfoList = (stocks: any, dividends: any) => {
 	const assetList: AssetCard[] = [];

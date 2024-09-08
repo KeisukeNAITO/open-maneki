@@ -15,14 +15,15 @@
 				<th>配当単価</th>
 				<th>直近配当落ち日</th>
 				<th>直前配当落ち日</th>
+				<th>進捗率(%)</th>
 				<th></th>
 			</tr>
 		</thead>
 		<tbody>
 			{#each data.assetList as asset}
 				<tr>
-					<th>{asset.stockId}</th>
-					<th>{asset.market}</th>
+					<td>{asset.stockId}</td>
+					<td>{asset.market}</td>
 					<td>{asset.code}</td>
 					<td>{asset.name}</td>
 					<td>{asset.share}</td>
@@ -30,28 +31,31 @@
 					<td>{asset.amount || '-'}</td>
 					<td>{asset.recordDate || '-'}</td>
 					<td>{asset.previousRecordDate || '-'}</td>
-					<th
+					<td>{asset.progressRate*100 || '-'}</td>
+					<td
 						><a href="/trade?code={asset.code}">
 							<button class="btn btn-outline btn-primary btn-xs">取引</button>
 						</a><a href="/dividend?code={asset.code}">
 							<button class="btn btn-outline btn-primary btn-xs">配当</button>
-						</a></th
+						</a></td
 					>
 				</tr>
 			{/each}
 			<tr>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th></th>
-				<th
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td
 					><a href="/trade" class="hover:text-gray-400">
 						<button class="btn btn-outline btn-secondary btn-xs">新規取引</button>
-					</a></th
+					</a></td
 				>
 			</tr>
 		</tbody>
