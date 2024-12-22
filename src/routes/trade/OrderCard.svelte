@@ -17,24 +17,24 @@
 </script>
 
 <div
-	class="card bg-neutral w-96 {tradeTransaction === TRADE_TYPE.BUY
+	class="card w-96 bg-neutral {tradeTransaction === TRADE_TYPE.BUY
 		? 'outline-red-200'
 		: 'outline-emerald-200'}"
 >
 	<div class="inline-flex">
 		<button
 			on:click={changeBuyColor}
-			class="text-2xl font-bold py-2 px-4 rounded-tl-lg
-			{tradeTransaction === TRADE_TYPE.BUY ? 'bg-red-500' : 'bg-neutral'} hover:bg-red-700 text-white"
+			class="rounded-tl-lg px-4 py-2 text-2xl font-bold
+			{tradeTransaction === TRADE_TYPE.BUY ? 'bg-red-500' : 'bg-neutral'} text-white hover:bg-red-700"
 		>
 			Buy
 		</button>
 		<button
 			on:click={changeSellColor}
-			class="text-2xl font-bold py-2 px-4
+			class="px-4 py-2 text-2xl font-bold
 			{tradeTransaction === TRADE_TYPE.SELL
 				? 'bg-emerald-500'
-				: 'bg-neutral'} hover:bg-emerald-700 text-white"
+				: 'bg-neutral'} text-white hover:bg-emerald-700"
 		>
 			Sell
 		</button>
@@ -112,9 +112,9 @@
 	</form>
 	<div class="inline-flex">
 		<a href="/">
-			<button class="bg-neutral rounded-bl-lg">
+			<button class="rounded-bl-lg bg-neutral">
 				<ChevronDoubleLeftOutline
-					class="text-base-100 w-10 h-8"
+					class="h-8 w-10 text-base-100"
 					title={{ id: 'my-title', title: 'Back' }}
 					desc={{ id: 'my-descrip', desc: 'Back to home' }}
 					ariaLabel="red heart"

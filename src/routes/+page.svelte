@@ -5,12 +5,12 @@
 	export let data: PageData;
 </script>
 
-<div class="flex flex-col w-full lg:flex-row">
-	<div class="grid h-20 flex-grow card bg-base-300 rounded-box place-items-center">
+<div class="flex w-full flex-col lg:flex-row">
+	<div class="card grid h-20 flex-grow place-items-center rounded-box bg-base-300">
 		<h1>Dividend visualization tool.</h1>
 	</div>
 	<div class="divider divider-horizontal"></div>
-	<div class="grid flex-grow card rounded-box">
+	<div class="card grid flex-grow rounded-box">
 		<AssetListTable {data} />
 	</div>
 </div>

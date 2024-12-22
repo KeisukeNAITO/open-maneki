@@ -7,7 +7,7 @@
 	const isUpdate = !_.isEmpty(stockInfo);
 </script>
 
-<div class="card bg-neutral w-96">
+<div class="card w-96 bg-neutral">
 	<form method="POST" class="card-body">
 		{#if isUpdate}
 			<select id="market" name="market" class="select select-bordered w-full">
@@ -67,9 +67,9 @@
 	</form>
 	<div class="inline-flex">
 		<a href="/">
-			<button class="bg-neutral rounded-bl-lg">
+			<button class="rounded-bl-lg bg-neutral">
 				<ChevronDoubleLeftOutline
-					class="text-base-100 w-10 h-8"
+					class="h-8 w-10 text-base-100"
 					title={{ id: 'my-title', title: 'Back' }}
 					desc={{ id: 'my-descrip', desc: 'Back to home' }}
 					ariaLabel="red heart"
