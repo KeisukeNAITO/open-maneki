@@ -7,10 +7,10 @@
 	export let data: PageData;
 </script>
 
-<div class="flex flex-col min-h-screen">
+<div class="flex min-h-screen flex-col">
 	<header class="flex items-center justify-between bg-primary px-6 py-3">
-		<h1 class="text-2xl font-bold text-xl">
-			<a href="/" class="font-bold text-xl">Open-Maneki</a>
+		<h1 class="text-2xl text-xl font-bold">
+			<a href="/" class="text-xl font-bold">Open-Maneki</a>
 		</h1>
 		<nav class="flex gap-4">
 			<div>{@html data.layout.update}</div>
@@ -22,7 +22,7 @@
 	</div>
 
 	<footer class="footer items-center bg-primary p-4">
-		<aside class="items-center grid-flow-col">
+		<aside class="grid-flow-col items-center">
 			<svg
 				width="36"
 				height="36"

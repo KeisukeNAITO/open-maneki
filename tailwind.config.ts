@@ -1,9 +1,8 @@
-/** @type {import('tailwindcss').Config} */
+import type { Config } from 'tailwindcss';
+
 export default {
-	content: [
-		'./src/**/*.{html,js,svelte,ts}',
-		'./node_modules/flowbite-svelte-icons/**/*.{html,js,svelte,ts}'
-	],
+	content: ['./src/**/*.{html,js,svelte,ts}'],
+
 	daisyui: {
 		themes: [
 			{
@@ -22,5 +21,6 @@ export default {
 			'dark'
 		]
 	},
+
 	plugins: [require('daisyui')]
-};
+} satisfies Config;
