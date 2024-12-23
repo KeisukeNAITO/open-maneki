@@ -1,14 +1,7 @@
 <script lang="ts">
-	import { time } from '$lib/util/store';
 	import _ from 'lodash';
 	export let data;
-
-	const calcProgressRate = (now: Date, next: Date, previous: Date) => {
-		return (
-			(new Date(now).getTime() - new Date(previous).getTime()) /
-			(new Date(next).getTime() - new Date(previous).getTime())
-		);
-	};
+	import { time, calcProgressRate } from '$lib/util/timeUtil';
 </script>
 
 <div class="overflow-x-auto">
@@ -39,7 +32,7 @@
 					<td>{asset.price}</td>
 					<td>
 						{#if !_.isUndefined(asset.amount)}
-							{asset.amount * asset.share} ({asset.amount})
+							{Math.floor(asset.amount * 100 * asset.share) / 100} ({asset.amount})
 						{:else}
 							-
 						{/if}
@@ -52,10 +45,10 @@
 						{:else}
 							{Math.floor(
 								asset.amount *
+									100 *
 									asset.share *
-									calcProgressRate($time, asset.recordDate, asset.previousRecordDate) *
-									100000
-							) / 100000}
+									calcProgressRate($time, asset.recordDate, asset.previousRecordDate)
+							) / 100}
 							({Math.floor(
 								calcProgressRate($time, asset.recordDate, asset.previousRecordDate) * 1000
 							) / 10}%)
