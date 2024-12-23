@@ -23,7 +23,7 @@ export const load = async ({ parent, data }) => {
  */
 const buildDividendInfoList = (tickerList: string[], dividendList: any) => {
 	let dividendInfoList = [];
-	for (let ticker of tickerList) {
+	for (const ticker of tickerList) {
 		const dividendInfo = selectByTicker(dividendList, ticker);
 		const sortedDividendInfo = sortByTradeAt(dividendInfo);
 		const nextDividendInfo = extractNextDividendSchedule(sortedDividendInfo);
@@ -39,14 +39,14 @@ const selectByTicker = (data: any[], ticker: string) => {
 };
 
 const sortByTradeAt = (data: any[]) => {
-	return _.sortBy(data, 'tradeAt');
+	return _.sortBy(data, 'recordDate');
 };
 
 const extractNextDividendSchedule = (dividendInfo: any) => {
 	return (
 		dividendInfo
 			.filter(
-				(n) =>
+				(n: { recordDate: string | number | Date }) =>
 					new Date(n.recordDate).setHours(0, 0, 0, 0) >= new Date(Date.now()).setHours(0, 0, 0, 0)
 			)
 			.at(0) || {}
@@ -57,7 +57,7 @@ const extractPreviousDividendSchedule = (dividendInfo: any) => {
 	return (
 		dividendInfo
 			.filter(
-				(n) =>
+				(n: { recordDate: string | number | Date }) =>
 					new Date(n.recordDate).setHours(0, 0, 0, 0) < new Date(Date.now()).setHours(0, 0, 0, 0)
 			)
 			.at(-1) || {}
