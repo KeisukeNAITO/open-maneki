@@ -1,11 +1,12 @@
 import type { AssetCard } from '$lib/model/rootView';
+import type { Dividend, Stock, DividendInfo } from '$lib/model/types';
 import _ from 'lodash';
 
 /** @type {import('./$types').PageLoad} */
 export const load = async ({ parent, data }) => {
 	await parent();
 
-	const stockInfoList = data.stocks.filter((n) => n.share > 0);
+	const stockInfoList: Stock[] = data.stocks.filter((n) => n.share > 0);
 	const tickerList: string[] = stockInfoList.map((stockInfo) => stockInfo.code);
 	const dividendList = buildDividendInfoList(tickerList, data.dividends);
 	const assetInfoList = buildAssetInfoList(stockInfoList, dividendList);
@@ -21,15 +22,16 @@ export const load = async ({ parent, data }) => {
  * @param dividendList
  * @returns
  */
-const buildDividendInfoList = (tickerList: string[], dividendList: any) => {
-	let dividendInfoList = [];
+const buildDividendInfoList = (tickerList: string[], dividendList: Dividend[]) => {
+	let dividendInfoList: DividendInfo[] = [];
 	for (const ticker of tickerList) {
 		const dividendInfo = selectByTicker(dividendList, ticker);
 		const sortedDividendInfo = sortByTradeAt(dividendInfo);
 		const nextDividendInfo = extractNextDividendSchedule(sortedDividendInfo);
+		const nextRecordDate = nextDividendInfo.recordDate || undefined;
 		const previousDividendInfo = extractPreviousDividendSchedule(sortedDividendInfo);
 		const previousRecordDate = previousDividendInfo.recordDate || undefined;
-		dividendInfoList.push({ ...nextDividendInfo, previousRecordDate });
+		dividendInfoList.push({ ...nextDividendInfo, previousRecordDate, nextRecordDate });
 	}
 	return dividendInfoList;
 };
