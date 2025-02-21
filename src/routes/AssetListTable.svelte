@@ -2,19 +2,20 @@
 	export let data;
 	import { time, calcProgressRate } from '$lib/util/timeUtil';
 
-	let dividendView = true;
-	function toggleDividendView() {
-		dividendView = !dividendView;
+	const TOTAL_AMOUNT = 0; // 総配当金額
+	const AMOUNT = 1; // 配当金単価
+	const THEORETICAL_AMOUNT = 2; // 論理配当金額
+	let dividendView = TOTAL_AMOUNT;
+	function rotateDividendView() {
+		dividendView = (dividendView + 1) % 3;
 	}
 
-	let recordView = true;
-	function toggleRecordView() {
-		recordView = !recordView;
-	}
-
-	let progressView = true;
-	function toggleProgressView() {
-		progressView = !progressView;
+	const NEXT_DATE = 0; // 直近配当落ち日
+	const PREVIOUS_DATE = 1; // 直前配当落ち日
+	const PROGRESS_RATE = 2; // 進捗率
+	let recordView = NEXT_DATE;
+	function rotateRecordView() {
+		recordView = (recordView + 1) % 3;
 	}
 </script>
 
@@ -22,33 +23,30 @@
 	<table class="table table-zebra table-md" role="grid" aria-label="資産一覧">
 		<thead>
 			<tr>
-				<th>#</th>
+				<th>#{PREVIOUS_DATE}</th>
 				<th>市場</th>
 				<th>銘柄コード</th>
 				<th>銘柄名</th>
 				<th>株数</th>
 				<th>株価</th>
-				<th onclick={toggleDividendView}>
-					{#if dividendView == true}
+				<th onclick={rotateDividendView}>
+					{#if dividendView == TOTAL_AMOUNT}
 						総配当金額
-					{:else}
-						配当金単価
+					{:else if dividendView == AMOUNT}
+						配当金単価(利回り)
+					{:else if dividendView == THEORETICAL_AMOUNT}
+						論理配当金額
 					{/if}</th
 				>
-				<th onclick={toggleRecordView}>
-					{#if recordView == true}
+				<th onclick={rotateRecordView}>
+					{#if recordView == NEXT_DATE}
 						直近配当落ち日
-					{:else}
+					{:else if recordView == PREVIOUS_DATE}
 						直前配当落ち日
-					{/if}
-				</th>
-				<th onclick={toggleProgressView}>
-					{#if progressView == true}
-						論理配当額
 					{:else}
 						進捗率(%)
-					{/if}</th
-				>
+					{/if}
+				</th>
 				<th>登録</th>
 			</tr>
 		</thead>
@@ -63,27 +61,11 @@
 					<td>{asset.price}</td>
 					<td>
 						{#if asset.amount !== undefined}
-							{#if dividendView == true}
+							{#if dividendView == TOTAL_AMOUNT}
 								{Math.floor(asset.amount * 100 * asset.share) / 100}
-							{:else}
-								{asset.amount}
-							{/if}
-						{:else}
-							-
-						{/if}
-					</td>
-					<td>
-						{#if recordView == true}
-							{asset.recordDate || '-'}
-						{:else}
-							{asset.previousRecordDate || '-'}
-						{/if}
-					</td>
-					<td>
-						{#if progressView == true}
-							{#if !asset.recordDate || !asset.previousRecordDate}
-								-
-							{:else}
+							{:else if dividendView == AMOUNT}
+								{asset.amount} ({Math.floor((asset.amount * 10000) / asset.price) / 100}%)
+							{:else if dividendView == THEORETICAL_AMOUNT}
 								{Math.floor(
 									asset.amount *
 										100 *
@@ -91,14 +73,25 @@
 										calcProgressRate($time, asset.recordDate, asset.previousRecordDate)
 								) / 100}
 							{/if}
-						{:else if !asset.recordDate || !asset.previousRecordDate}
-							-
 						{:else}
-							{Math.floor(
-								calcProgressRate($time, asset.recordDate, asset.previousRecordDate) * 1000
-							) / 10}
-						{/if}</td
-					>
+							-
+						{/if}
+					</td>
+					<td>
+						{#if recordView == NEXT_DATE}
+							{asset.recordDate || '-'}
+						{:else if recordView == PREVIOUS_DATE}
+							{asset.previousRecordDate || '-'}
+						{:else if recordView == PROGRESS_RATE}
+							{#if !asset.recordDate || !asset.previousRecordDate}
+								-
+							{:else}
+								{Math.floor(
+									calcProgressRate($time, asset.recordDate, asset.previousRecordDate) * 1000
+								) / 10}
+							{/if}
+						{/if}
+					</td>
 					<td
 						><a href="/trade?code={asset.code}">
 							<button class="hover:btn-primary-focus btn btn-outline btn-primary btn-xs"
@@ -111,7 +104,6 @@
 				</tr>
 			{/each}
 			<tr>
-				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>
