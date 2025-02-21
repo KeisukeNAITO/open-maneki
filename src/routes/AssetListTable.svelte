@@ -2,6 +2,11 @@
 	import _ from 'lodash';
 	export let data;
 	import { time, calcProgressRate } from '$lib/util/timeUtil';
+
+	let dividendView = true;
+	function toggleDividendView() {
+		dividendView = !dividendView;
+	}
 </script>
 
 <div class="overflow-x-auto">
@@ -14,7 +19,12 @@
 				<th>銘柄名</th>
 				<th>株数</th>
 				<th>株価</th>
-				<th>配当金額(単価)</th>
+				<th onclick={toggleDividendView}>
+				{#if dividendView==true}
+				総配当金額
+				{:else}
+				配当金単価
+				{/if}</th>
 				<th>直近配当落ち日</th>
 				<th>直前配当落ち日</th>
 				<th>論理配当額(進捗率)</th>
@@ -32,7 +42,11 @@
 					<td>{asset.price}</td>
 					<td>
 						{#if !_.isUndefined(asset.amount)}
-							{Math.floor(asset.amount * 100 * asset.share) / 100} ({asset.amount})
+							{#if dividendView==true}
+								{Math.floor(asset.amount * 100 * asset.share) / 100}
+							{:else}
+ 								{asset.amount}
+							{/if}
 						{:else}
 							-
 						{/if}
