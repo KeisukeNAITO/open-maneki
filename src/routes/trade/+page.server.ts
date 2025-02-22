@@ -53,7 +53,7 @@ export const actions = {
 const buildStockParam = async (tradeParams: TradeParam[]) => {
 	// TODO: 会計的に正確な計算方法に変更する
 	const lastIndex = tradeParams.length - 1;
-	let tempStock: StockParam = {
+	const tempStock: StockParam = {
 		stockId: undefined,
 		market: tradeParams[0].market,
 		code: tradeParams[0].code,

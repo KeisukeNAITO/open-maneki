@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 /**
- * 売買情報の登録フォームのバリデーター
+ * 売買情報の登録フォームのバリデーション
  * @param data
  * @returns
  */

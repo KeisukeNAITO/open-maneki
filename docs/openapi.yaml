@@ -15,11 +15,11 @@ tags:
 
 paths:
   /dividend:
-    post:
+    put:
       tags:
         - dividend
-      summary: 配当情報の更新
-      description: 指定された銘柄の配当情報を更新します
+      summary: 配当情報の追加/更新
+      description: 指定された銘柄の配当情報を追加あるいは重複する情報がある場合は更新します
       operationId: insertDividend
       requestBody:
         description: 登録したい配当情報
@@ -30,7 +30,7 @@ paths:
               $ref: '#/components/schemas/DividendInsertRequest'
       responses:
         '200':
-          description: 登録成功
+          description: 登録/更新成功
           content:
             application/json:
               schema:

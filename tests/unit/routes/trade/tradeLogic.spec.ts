@@ -23,9 +23,12 @@ describe('validateTradeRegisterParam', () => {
 		['code', ''],
 		['name', ''],
 		['share', 'invalid'],
+		['share', ''],
 		['price', 'invalid'],
-		['date', 'invalid']
-	])('%sが不正な場合、falseを返す', (key, value) => {
+		['price', ''],
+		['date', 'invalid'],
+		['date', '']
+	])('%sが不正な値"%s"の場合、falseを返す', (key, value) => {
 		const invalidFormData = validFormData;
 		invalidFormData.set(key, value);
 		expect(validateTradeRegisterParam(invalidFormData)).toBe(false);
