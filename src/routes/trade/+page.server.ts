@@ -4,6 +4,7 @@ import { selectStockByTicker, upsertStock, type StockParam } from '$lib/db/gatew
 import { insertTrade, selectTradeHistoryByTicker, type TradeParam } from '$lib/db/gateway/trade';
 import { redirect } from '@sveltejs/kit';
 import _ from 'lodash';
+import { validateTradeRegisterParam } from './tradeLogic';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ url }) => {
@@ -27,7 +28,7 @@ export const load = async ({ url }) => {
 export const actions = {
 	default: async ({ request }) => {
 		const data: FormData = await request.formData();
-		if (!putValidator(data)) {
+		if (!validateTradeRegisterParam(data)) {
 			return {};
 		} else {
 			const body: TradeParam = {
@@ -42,30 +43,10 @@ export const actions = {
 			};
 			await insertTrade(body);
 
-			const tradeHistory: TradeParam[] = await selectTradeHistoryByTicker(body.code);
+			const tradeHistory = (await selectTradeHistoryByTicker(body.code)) as TradeParam[];
 			await upsertStock(await buildStockParam(tradeHistory));
 			return {};
 		}
-	}
-};
-
-const putValidator = (data: FormData) => {
-	if (_.isEmpty(data.get('transaction')) || !_.isString(data.get('transaction'))) {
-		return false;
-	} else if (_.isEmpty(data.get('market')) || !_.isString(data.get('market'))) {
-		return false;
-	} else if (_.isEmpty(data.get('code')) || !_.isString(data.get('code'))) {
-		return false;
-	} else if (_.isEmpty(data.get('name')) || !_.isString(data.get('name'))) {
-		return false;
-	} else if (_.isEmpty(data.get('share')) || !_.isNumber(Number(data.get('share')))) {
-		return false;
-	} else if (_.isEmpty(data.get('price')) || !_.isNumber(Number(data.get('price')))) {
-		return false;
-	} else if (_.isEmpty(data.get('date')) || !_.isDate(new Date(data.get('date')!.toString()))) {
-		return false;
-	} else {
-		return true;
 	}
 };
 
