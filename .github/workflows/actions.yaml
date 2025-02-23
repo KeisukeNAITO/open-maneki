@@ -101,5 +101,4 @@ jobs:
       - run: npm ci
       - run: npx playwright install
       - run: npm run setup
-      - run: npm run setup:data
       - run: npm run test:e2e
