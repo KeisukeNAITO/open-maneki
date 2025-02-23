@@ -38,6 +38,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+      - run: npm ci
       - run: npm run build
       - run: npm run test:unit
       - run: npm run test:e2e
