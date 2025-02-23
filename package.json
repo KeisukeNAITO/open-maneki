@@ -14,6 +14,7 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",
+		"prepare": "svelte-kit sync",
 		"setup": "npx prisma migrate dev --name init",
 		"setup:data": "npx prisma db seed"
 	},
