@@ -56,10 +56,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: try build
-        run: |
-          npm ci
-          npm run build
+      - run: npm ci
+      - run: npm run build
 
   ut:
     name: Unit Test
