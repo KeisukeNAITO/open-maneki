@@ -38,12 +38,6 @@ jobs:
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
 
-  build:
-    name: Build
-    needs: [setup]
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Build app
         run: |
           npm run build
