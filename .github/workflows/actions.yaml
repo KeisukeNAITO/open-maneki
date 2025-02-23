@@ -100,7 +100,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npx playwright install
-      - run: printenv DATABASE_URL
-      - run: npx run setup
-      - run: npx run setup:data
+      - run: npm run setup
+      - run: npm run setup:data
       - run: npm run test:e2e
