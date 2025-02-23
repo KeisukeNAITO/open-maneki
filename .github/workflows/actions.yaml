@@ -41,7 +41,7 @@ jobs:
 
   build:
     name: Build
-    needs: [setup]
+    needs: [introduce]
     runs-on: ubuntu-latest
     strategy:
       matrix:
