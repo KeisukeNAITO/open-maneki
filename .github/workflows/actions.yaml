@@ -78,10 +78,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: try Unit Test
-        run: |
-          npm ci
-          npm run test:unit
+      - run: npm ci
+      - run: npm run test:unit
 
   it:
     name: Integration Test
@@ -100,7 +98,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: try Integration Test
-        run: |
-          npm ci
-          npm run test:e2e
+      - run: npm ci
+      - run: npm run test:e2e
