@@ -16,7 +16,7 @@
 		"test:e2e": "playwright test",
 		"prepare": "svelte-kit sync",
 		"setup": "npx prisma migrate dev --name init",
-		"setup:data": "npx prisma db seed"
+		"setup:db": "npx prisma db seed"
 	},
 	"prisma": {
 		"seed": "tsx prisma/seed.ts"
