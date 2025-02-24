@@ -30,5 +30,10 @@ export default ts.config(
 				parser: ts.parser
 			}
 		}
+	},
+	{
+		rules: {
+			'@typescript-eslint/no-empty-object-type': 'off'
+		}
 	}
 );
