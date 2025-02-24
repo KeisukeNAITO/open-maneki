@@ -1,3 +1,5 @@
+import type { Dividend } from '$lib/model/types';
+
 /** @type {import('./$types').PageLoad} */
 export const load = async ({ parent, data }) => {
 	await parent();
@@ -9,7 +11,7 @@ export const load = async ({ parent, data }) => {
 	return data;
 };
 
-const buildDividendHistoryViewList = (history) => {
+const buildDividendHistoryViewList = (history: Dividend) => {
 	const daysLeft: number = toRemainDays(history.recordDate);
 	return { ...history, daysLeft };
 };

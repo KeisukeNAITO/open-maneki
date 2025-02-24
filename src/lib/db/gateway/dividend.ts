@@ -1,13 +1,14 @@
 import db from '$lib/db/prisma';
+import type { Dividend } from '@prisma/client';
 import _ from 'lodash';
 
 export const selectAllDividends = async () => {
 	return db.dividend.findMany();
 };
 
-export const selectDividendByTicker = async (code: string | null) => {
+export const selectDividendByTicker = async (code: string | null): Promise<Dividend[]> => {
 	if (_.isEmpty(code)) {
-		return [{}];
+		return [];
 	}
 
 	return db.dividend.findMany({

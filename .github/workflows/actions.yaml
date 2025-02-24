@@ -2,16 +2,16 @@
 #
 # 全てのcommit/pushに対して実行可能・一定の品質・可読しやすいコードである事を要求する。
 ---
-name: Build/Test
+name: Build/Test/Lint
 run-name: ${{ github.actor }} is testing out GitHub Actions
 
 on:
   # 動作確認しやすいように手動起動をサポート
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 # ワークフローレベルでパーミッションをすべて無効化
 permissions: {}
@@ -71,10 +71,16 @@ jobs:
 
       - name: Setup Playwright
         run: npx playwright install --with-deps chromium
-        
+
       - name: Integration Tests
         env:
-          DATABASE_URL: "file:.test.db"
+          DATABASE_URL: 'file:.test.db'
         run: |
           npm run setup
           npm run test:e2e
+
+      - name: Lint
+        run: npm run lint
+
+      - name: TSconfig
+        run: npm run check
