@@ -80,9 +80,7 @@ jobs:
           npm run test:e2e
 
       - name: Lint
-        continue-on-error: true
         run: npm run lint
 
       - name: TSconfig
-        continue-on-error: true
         run: npm run check

@@ -51,3 +51,21 @@ export interface Stock {
 	/** 更新日時 */
 	updateAt: Date;
 }
+
+/**
+ * 株式情報関連リクエストボディ
+ */
+export interface StockRequestBody {
+	/** 証券情報ID(ユニーク) */
+	stockId?: number;
+	/** 銘柄コード */
+	code: string;
+	/** 銘柄名 */
+	name: string;
+	/** 市場区分 */
+	market: string;
+	/** 保有株数 */
+	share: number;
+	/** 株価 */
+	price: number;
+}

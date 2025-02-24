@@ -5,11 +5,12 @@ import {
 	type StockParam
 } from '$lib/db/gateway/stock';
 import { json } from '@sveltejs/kit';
+import type { StockRequestBody } from '$lib/model/types';
 import _ from 'lodash';
 
 /** @type {import('./$types').RequestHandler} */
 export async function PUT({ request }) {
-	const body = await request.json();
+	const body = (await request.json()) as StockRequestBody;
 	if (!putValidator(body)) {
 		console.log('[PUT] /stock invalid parameter: ' + JSON.stringify(body));
 		return json({});
@@ -28,7 +29,7 @@ export async function PUT({ request }) {
 	return json(await putStock(param));
 }
 
-const putValidator = (body: any) => {
+const putValidator = (body: StockRequestBody) => {
 	if (!_.isString(body.code)) {
 		return false;
 	} else if (!_.isString(body.name)) {
