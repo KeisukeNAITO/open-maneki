@@ -27,115 +27,54 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  introduce: # 実行環境をチェック
-    name: Introduce
+  test:
+    name: Build and Test
+    timeout-minutes: 10
     runs-on: ubuntu-22.04
-    timeout-minutes: 3
-    # ジョブレベルで必要最小限のパーミッションを定義
     permissions:
       contents: read
-    # Node.jsのサポートバージョン
     strategy:
       matrix:
         node-version: [20.x, 22.x]
 
     steps:
-      - run: set -x
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - uses: actions/checkout@v4
 
-      # Checkout
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      # Node.js setup
-      - name: Install Node.js v${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Check Node.js version
+
+      # node_modulesのキャッシュ
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: |
+            **/node_modules
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node-version }}-
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit Tests
+        run: npm run test:unit
+
+      - name: Setup Playwright
+        run: npx playwright install --with-deps chromium
+        
+      - name: Integration Tests
+        env:
+          DATABASE_URL: "file:.test.db"
         run: |
-          node -v
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-
-  build:
-    name: Build
-    needs: [introduce]
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-
-    steps:
-      - run: set -x
-      # Checkout
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      # Node.js setup
-      - name: Install Node.js v${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run build
-
-  ut:
-    name: Unit Test
-    needs: [build]
-    runs-on: ubuntu-22.04
-    timeout-minutes: 3
-    # ジョブレベルで必要最小限のパーミッションを定義
-    permissions:
-      contents: read
-    # Node.jsのサポートバージョン
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-
-    steps:
-      - run: set -x
-      # Checkout
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      # Node.js setup
-      - name: Install Node.js v${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm run test:unit
-
-  it:
-    name: Integration Test
-    needs: [build]
-    runs-on: ubuntu-22.04
-    timeout-minutes: 3
-    # ジョブレベルで必要最小限のパーミッションを定義
-    permissions:
-      contents: read
-    # Node.jsのサポートバージョン
-    strategy:
-      matrix:
-        node-version: [20.x, 22.x]
-    env:
-      DATABASE_URL: "file:.test.db"
-
-    steps:
-      - run: set -x
-      # Checkout
-      - name: Check out repository code
-        uses: actions/checkout@v4
-      # Node.js setup
-      - name: Install Node.js v${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npx playwright install
-      - run: npm run setup
-      - run: npm run test:e2e
+          npm run setup
+          npm run test:e2e
