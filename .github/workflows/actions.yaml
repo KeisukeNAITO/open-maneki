@@ -1,22 +1,46 @@
+# Pushされるごとに自動ビルド/テスト/コーディング規約チェックをする
+#
+# 全てのcommit/pushに対して実行可能・一定の品質・可読しやすいコードである事を要求する。
+---
 name: Build/Test
 run-name: ${{ github.actor }} is testing out GitHub Actions
 
 on:
+  # 動作確認しやすいように手動起動をサポート
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
+
+# ワークフローレベルでパーミッションをすべて無効化
+permissions: {}
+
+# デフォルトシェルでパイプエラーを有効化
+defaults:
+  run:
+    shell: bash
+
+# ワークフローが複数起動したら自動キャンセル
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   introduce: # 実行環境をチェック
     name: Introduce
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
+    # ジョブレベルで必要最小限のパーミッションを定義
+    permissions:
+      contents: read
+    # Node.jsのサポートバージョン
     strategy:
       matrix:
         node-version: [20.x, 22.x]
 
     steps:
+      - run: set -x
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
@@ -42,12 +66,13 @@ jobs:
   build:
     name: Build
     needs: [introduce]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20.x, 22.x]
 
     steps:
+      - run: set -x
       # Checkout
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -62,12 +87,18 @@ jobs:
   ut:
     name: Unit Test
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
+    # ジョブレベルで必要最小限のパーミッションを定義
+    permissions:
+      contents: read
+    # Node.jsのサポートバージョン
     strategy:
       matrix:
         node-version: [20.x, 22.x]
 
     steps:
+      - run: set -x
       # Checkout
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -82,7 +113,12 @@ jobs:
   it:
     name: Integration Test
     needs: [build]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
+    # ジョブレベルで必要最小限のパーミッションを定義
+    permissions:
+      contents: read
+    # Node.jsのサポートバージョン
     strategy:
       matrix:
         node-version: [20.x, 22.x]
@@ -90,6 +126,7 @@ jobs:
       DATABASE_URL: "file:.test.db"
 
     steps:
+      - run: set -x
       # Checkout
       - name: Check out repository code
         uses: actions/checkout@v4
