@@ -70,7 +70,7 @@
 									asset.amount *
 										100 *
 										asset.share *
-										calcProgressRate($time, asset.recordDate, asset.previousRecordDate)
+										calcProgressRate($time, asset.nextRecordDate, asset.previousRecordDate)
 								) / 100}
 							{/if}
 						{:else}
@@ -79,15 +79,15 @@
 					</td>
 					<td>
 						{#if recordView == NEXT_DATE}
-							{asset.recordDate || '-'}
+							{asset.nextRecordDate || '-'}
 						{:else if recordView == PREVIOUS_DATE}
 							{asset.previousRecordDate || '-'}
 						{:else if recordView == PROGRESS_RATE}
-							{#if !asset.recordDate || !asset.previousRecordDate}
+							{#if !asset.nextRecordDate || !asset.previousRecordDate}
 								-
 							{:else}
 								{Math.floor(
-									calcProgressRate($time, asset.recordDate, asset.previousRecordDate) * 1000
+									calcProgressRate($time, asset.nextRecordDate, asset.previousRecordDate) * 1000
 								) / 10}
 							{/if}
 						{/if}

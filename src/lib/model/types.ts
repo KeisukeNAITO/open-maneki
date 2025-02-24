@@ -4,12 +4,12 @@
 export interface Dividend {
 	/** 配当情報ID(ユニーク) */
 	dividendId: number;
+	/** 市場区分 */
+	market: string;
 	/** 銘柄コード */
 	code: string;
 	/** 銘柄名 */
 	name: string;
-	/** 市場区分 */
-	market: string;
 	/** 配当基準日 */
 	recordDate: Date;
 	/** 配当金額 */
@@ -25,9 +25,9 @@ export interface Dividend {
  */
 export interface DividendInfo extends Dividend {
 	/** 次回配当基準日 */
-	nextRecordDate?: Date;
+	nextRecordDate: string;
 	/** 前回配当基準日 */
-	previousRecordDate?: Date;
+	previousRecordDate: string;
 }
 
 /**
@@ -36,12 +36,12 @@ export interface DividendInfo extends Dividend {
 export interface Stock {
 	/** 証券情報ID(ユニーク) */
 	stockId: number;
+	/** 市場区分 */
+	market: string;
 	/** 銘柄コード */
 	code: string;
 	/** 銘柄名 */
 	name: string;
-	/** 市場区分 */
-	market: string;
 	/** 保有株数 */
 	share: number;
 	/** 株価 */
@@ -58,14 +58,32 @@ export interface Stock {
 export interface StockRequestBody {
 	/** 証券情報ID(ユニーク) */
 	stockId?: number;
+	/** 市場区分 */
+	market: string;
 	/** 銘柄コード */
 	code: string;
 	/** 銘柄名 */
 	name: string;
-	/** 市場区分 */
-	market: string;
 	/** 保有株数 */
 	share: number;
 	/** 株価 */
 	price: number;
+}
+
+/**
+ * 配当情報
+ */
+export interface DividendRequestBody {
+	/** 配当情報ID(ユニーク) */
+	dividendId?: number;
+	/** 市場区分 */
+	market: string;
+	/** 銘柄コード */
+	code: string;
+	/** 銘柄名 */
+	name: string;
+	/** 配当基準日 */
+	recordDate: Date;
+	/** 配当金額 */
+	amount: number;
 }

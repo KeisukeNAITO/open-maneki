@@ -4,12 +4,13 @@ import {
 	upsertDividend,
 	type DividendParam
 } from '$lib/db/gateway/dividend';
+import type { DividendRequestBody } from '$lib/model/types.js';
 import { json } from '@sveltejs/kit';
 import _ from 'lodash';
 
 /** @type {import('./$types').RequestHandler} */
 export async function PUT({ request }) {
-	const body = await request.json();
+	const body = (await request.json()) as DividendRequestBody;
 	if (!putValidator(body)) {
 		console.log('[PUT] /dividend invalid parameter: ' + JSON.stringify(body));
 		return json({});
@@ -28,7 +29,7 @@ export async function PUT({ request }) {
 	return json(await putDividend(param));
 }
 
-const putValidator = (body: any) => {
+const putValidator = (body: DividendRequestBody) => {
 	if (!_.isString(body.code)) {
 		return false;
 	} else if (!_.isString(body.name)) {

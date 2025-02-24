@@ -8,8 +8,8 @@ export const load = async ({ parent, data }) => {
 
 	const stockInfoList: Stock[] = data.stocks.filter((n) => n.share > 0);
 	const tickerList: string[] = stockInfoList.map((stockInfo) => stockInfo.code);
-	const dividendList = buildDividendInfoList(tickerList, data.dividends);
-	const assetInfoList = buildAssetInfoList(stockInfoList, dividendList);
+	const dividendList: DividendInfo[] = buildDividendInfoList(tickerList, data.dividends);
+	const assetInfoList: AssetCard[] = buildAssetInfoList(stockInfoList, dividendList);
 
 	return {
 		assetList: assetInfoList
@@ -22,29 +22,33 @@ export const load = async ({ parent, data }) => {
  * @param dividendList
  * @returns
  */
-const buildDividendInfoList = (tickerList: string[], dividendList: Dividend[]) => {
-	let dividendInfoList: DividendInfo[] = [];
+const buildDividendInfoList = (tickerList: string[], dividendList: Dividend[]): DividendInfo[] => {
+	const dividendInfoList: DividendInfo[] = [];
 	for (const ticker of tickerList) {
-		const dividendInfo = selectByTicker(dividendList, ticker);
-		const sortedDividendInfo = sortByTradeAt(dividendInfo);
-		const nextDividendInfo = extractNextDividendSchedule(sortedDividendInfo);
-		const nextRecordDate = nextDividendInfo.recordDate || undefined;
-		const previousDividendInfo = extractPreviousDividendSchedule(sortedDividendInfo);
-		const previousRecordDate = previousDividendInfo.recordDate || undefined;
+		const dividendInfo: Dividend[] = selectByTicker(dividendList, ticker);
+		const sortedDividendInfo: Dividend[] = sortByTradeAt(dividendInfo);
+		const nextDividendInfo = extractNextDividendSchedule(sortedDividendInfo) as Dividend;
+		const nextRecordDate = !_.isEmpty(nextDividendInfo)
+			? nextDividendInfo.recordDate.toLocaleDateString()
+			: '';
+		const previousDividendInfo = extractPreviousDividendSchedule(sortedDividendInfo) as Dividend;
+		const previousRecordDate = !_.isEmpty(previousDividendInfo)
+			? previousDividendInfo.recordDate.toLocaleDateString()
+			: '';
 		dividendInfoList.push({ ...nextDividendInfo, previousRecordDate, nextRecordDate });
 	}
 	return dividendInfoList;
 };
 
-const selectByTicker = (data: any[], ticker: string) => {
+const selectByTicker = (data: Dividend[], ticker: string): Dividend[] => {
 	return data.filter((n) => n.code === ticker);
 };
 
-const sortByTradeAt = (data: any[]) => {
+const sortByTradeAt = (data: Dividend[]): Dividend[] => {
 	return _.sortBy(data, 'recordDate');
 };
 
-const extractNextDividendSchedule = (dividendInfo: any) => {
+const extractNextDividendSchedule = (dividendInfo: Dividend[]): Dividend | {} => {
 	return (
 		dividendInfo
 			.filter(
@@ -55,7 +59,7 @@ const extractNextDividendSchedule = (dividendInfo: any) => {
 	);
 };
 
-const extractPreviousDividendSchedule = (dividendInfo: any) => {
+const extractPreviousDividendSchedule = (dividendInfo: Dividend[]): Dividend | {} => {
 	return (
 		dividendInfo
 			.filter(
@@ -66,18 +70,12 @@ const extractPreviousDividendSchedule = (dividendInfo: any) => {
 	);
 };
 
-const buildAssetInfoList = (stocks: any, dividends: any) => {
+const buildAssetInfoList = (stocks: Stock[], dividends: DividendInfo[]): AssetCard[] => {
 	const assetList: AssetCard[] = [];
 	for (const stock of stocks) {
 		let isMerged: boolean = false;
 		for (const dividend of dividends) {
 			if (stock.code === dividend.code) {
-				if (_.isDate(dividend.recordDate)) {
-					dividend.recordDate = new Date(dividend.recordDate).toLocaleDateString();
-				}
-				if (_.isDate(dividend.previousRecordDate)) {
-					dividend.previousRecordDate = new Date(dividend.previousRecordDate).toLocaleDateString();
-				}
 				const asset: AssetCard = { ...stock, ...dividend };
 				assetList.push(asset);
 				isMerged = true;
