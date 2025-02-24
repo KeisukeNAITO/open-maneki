@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Open Maneki API
   version: '1.0'
-  description: 株式資産管理アプリケーションのAPI仕様
+  description: 個人向け株式資産管理アプリケーションのAPI仕様
 
 servers:
   - url: http://localhost:5173/api/v1
@@ -18,8 +18,8 @@ paths:
     put:
       tags:
         - dividend
-      summary: 配当情報の追加/更新
-      description: 指定された銘柄の配当情報を追加あるいは重複する情報がある場合は更新します
+      summary: 配当金情報の追加・更新
+      description: 指定された銘柄の配当情報を追加あるいは重複する情報がある場合は更新します。
       operationId: insertDividend
       requestBody:
         description: 登録したい配当情報
