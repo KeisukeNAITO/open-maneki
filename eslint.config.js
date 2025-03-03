@@ -33,7 +33,8 @@ export default ts.config(
 	},
 	{
 		rules: {
-			'@typescript-eslint/no-empty-object-type': 'off'
+			'@typescript-eslint/no-empty-object-type': 'warn',
+			'svelte/no-at-html-tags': 'warn'
 		}
 	}
 );
