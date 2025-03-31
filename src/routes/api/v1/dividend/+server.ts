@@ -5,7 +5,7 @@ import {
 	type DividendParam
 } from '$lib/db/gateway/dividend';
 import type { DividendRequestBody } from '$lib/model/types.js';
-import { json } from '@sveltejs/kit';
+import { json, error } from '@sveltejs/kit';
 import _ from 'lodash';
 
 /** @type {import('./$types').RequestHandler} */
@@ -42,7 +42,14 @@ const putValidator = (body: DividendRequestBody) => {
 };
 
 const putDividend = async (param: DividendParam) => {
-	return await upsertDividend(param);
+	try {
+		return await upsertDividend(param);
+	} catch (e) {
+		console.error('配当更新エラー:', e);
+		throw error(404, {
+			message: e instanceof Error ? e.message : '配当の更新に失敗しました'
+		});
+	}
 };
 
 /** @type {import('./$types').RequestHandler} */

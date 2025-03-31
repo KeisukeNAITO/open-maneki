@@ -25,17 +25,21 @@ export const insertDividend = async (param: DividendParam) => {
 };
 
 export const upsertDividend = async (param: DividendParam) => {
-	const existRecord = await db.dividend.findMany({
-		where: {
-			code: param.code
-		}
-	});
-
-	if (existRecord.length === 0) {
+	// dividend IDの指定がない場合は新規登録
+	if (_.isEmpty(param.dividendId)) {
 		return db.dividend.create({
 			data: param
 		});
-	} else if (existRecord.length === 1) {
+	}
+
+	// dividend IDとcodeをキーに既にレコードがあれば更新する
+	const existRecord = await db.dividend.findMany({
+		where: {
+			dividendId: param.dividendId,
+			code: param.code
+		}
+	});
+	if (existRecord.length === 1) {
 		return db.dividend.update({
 			where: {
 				dividendId: existRecord[0].dividendId
@@ -43,7 +47,10 @@ export const upsertDividend = async (param: DividendParam) => {
 			data: param
 		});
 	} else {
-		return {};
+		// 更新対象がない場合はエラーを投げる
+		throw new Error(
+			`更新対象の配当情報が見つかりません。ID: ${param.dividendId}, コード: ${param.code}`
+		);
 	}
 };
 

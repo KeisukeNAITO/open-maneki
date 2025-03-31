@@ -1,14 +1,26 @@
 import type { Dividend } from '$lib/model/types';
+import { DEFAULT_DIVIDEND_API as DEFAULT } from '$lib/const/defaultEnv.js';
 
 /** @type {import('./$types').PageLoad} */
-export const load = async ({ parent, data }) => {
+export const load = async ({ parent, data, url }) => {
 	await parent();
 
-	for (const [index, history] of data.dividendHistory.entries()) {
-		data.dividendHistory[index] = buildDividendHistoryViewList(history);
+	const API_DOMAIN = data.serviceInfo.DIVIDEND_API_DOMAIN || DEFAULT.DOMAIN;
+	const requestQuery = url.searchParams.get('code') || '';
+	const dividendHistrory: Dividend[] = await (
+		await fetch(`${API_DOMAIN}/${DEFAULT.GET_DIVIDEND_PATH}?code=${requestQuery}`, {
+			method: 'GET'
+		})
+	).json();
+
+	for (const [index, history] of dividendHistrory.entries()) {
+		dividendHistrory[index] = buildDividendHistoryViewList(history);
 	}
 
-	return data;
+	return {
+		...data,
+		dividendHistory: dividendHistrory
+	};
 };
 
 const buildDividendHistoryViewList = (history: Dividend) => {
