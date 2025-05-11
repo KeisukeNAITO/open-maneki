@@ -6,6 +6,7 @@ import {
 } from '$lib/db/gateway/stock';
 import { json } from '@sveltejs/kit';
 import type { StockRequestBody } from '$lib/model/types';
+import { removeSystemKey } from '$lib/util/timeUtil.js';
 import _ from 'lodash';
 
 /** @type {import('./$types').RequestHandler} */
@@ -55,8 +56,8 @@ export async function GET({ url }) {
 
 const getStocks = async (code: string | null) => {
 	if (code) {
-		return selectStockByTicker(code);
+		return removeSystemKey(await selectStockByTicker(code));
 	} else {
-		return selectAllStocks();
+		return removeSystemKey(await selectAllStocks());
 	}
 };

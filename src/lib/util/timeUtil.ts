@@ -16,3 +16,24 @@ export const calcProgressRate = (now: Date, next: Date, previous: Date) => {
 		(new Date(next).getTime() - new Date(previous).getTime())
 	);
 };
+
+export const removeSystemKey = (data: any) => {
+	if(!data) {
+		return data
+	}
+
+	if (Array.isArray(data)) {
+		for (const [index, record] of data.entries()) {
+			data[index] = removeTimeStamp(record);
+		}
+	} else {
+		data = removeTimeStamp(data);
+	}
+	return data
+};
+
+export const removeTimeStamp = (data: any) => {
+	delete data.updateAt;
+	delete data.createAt;
+	return data;
+};

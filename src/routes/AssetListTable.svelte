@@ -23,7 +23,7 @@
 	<table class="table table-zebra table-md" role="grid" aria-label="資産一覧">
 		<thead>
 			<tr>
-				<th>#{PREVIOUS_DATE}</th>
+				<th>#</th>
 				<th>市場</th>
 				<th>銘柄コード</th>
 				<th>銘柄名</th>

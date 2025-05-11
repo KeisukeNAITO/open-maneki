@@ -5,6 +5,7 @@ import {
 	type DividendParam
 } from '$lib/db/gateway/dividend';
 import type { DividendRequestBody } from '$lib/model/types.js';
+import { removeSystemKey } from '$lib/util/timeUtil.js';
 import { json, error } from '@sveltejs/kit';
 import _ from 'lodash';
 
@@ -60,8 +61,8 @@ export async function GET({ url }) {
 
 const getDividends = async (code: string | null) => {
 	if (code) {
-		return selectDividendByTicker(code);
+		return removeSystemKey(await selectDividendByTicker(code));
 	} else {
-		return selectAllDividends();
+		return removeSystemKey(await selectAllDividends());
 	}
 };
