@@ -3,15 +3,5 @@
 		"marketName": "TSE",
 		"officialName": "Tokyo Stock Exchange",
 		"currency": "JPY"
-	},
-	{
-		"marketName": "NYSE",
-		"officialName": "New York Stock Exchange",
-		"currency": "USD"
-	},
-	{
-		"marketName": "NASDAQ",
-		"officialName": "National Association of Securities Dealers Automated Quotations",
-		"currency": "USD"
 	}
 ]
