@@ -16,7 +16,7 @@
 			{#each dividendHistory as dividendInfo}
 				<tr>
 					<td>{dividendInfo.dividendId}</td>
-					<td>{new Date(dividendInfo.recordDate).toISOString().slice(0, 10)}</td>
+					<td>{new Date(dividendInfo.recordDate).toLocaleDateString('ja-JP')}</td>
 					<td>{dividendInfo.amount}</td>
 					<td>
 						{#if dividendInfo.daysLeft > 0}

@@ -29,11 +29,11 @@ const buildDividendInfoList = (tickerList: string[], dividendList: Dividend[]): 
 		const sortedDividendInfo: Dividend[] = sortByTradeAt(dividendInfo);
 		const nextDividendInfo = extractNextDividendSchedule(sortedDividendInfo) as Dividend;
 		const nextRecordDate = !_.isEmpty(nextDividendInfo)
-			? nextDividendInfo.recordDate.toLocaleDateString()
+			? nextDividendInfo.recordDate.toLocaleDateString('ja-JP')
 			: '';
 		const previousDividendInfo = extractPreviousDividendSchedule(sortedDividendInfo) as Dividend;
 		const previousRecordDate = !_.isEmpty(previousDividendInfo)
-			? previousDividendInfo.recordDate.toLocaleDateString()
+			? previousDividendInfo.recordDate.toLocaleDateString('ja-JP')
 			: '';
 		dividendInfoList.push({ ...nextDividendInfo, previousRecordDate, nextRecordDate });
 	}

@@ -19,7 +19,7 @@
 			{#each tradeLogs as tradeInfo}
 				<tr>
 					<td>{tradeInfo.tradeId}</td>
-					<td>{new Date(tradeInfo.tradeAt).toISOString().slice(0, 10)}</td>
+					<td>{new Date(tradeInfo.tradeAt).toLocaleDateString('ja-JP')}</td>
 					<td>{tradeInfo.share}</td>
 					<td>{tradeInfo.price}</td>
 					<td>{tradeInfo.transaction === TRADE_TYPE.BUY ? '買い' : '売り'}</td>

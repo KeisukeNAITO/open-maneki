@@ -99,6 +99,8 @@
 							>
 						</a><a href="/dividend?code={asset.code}">
 							<button class="btn btn-outline btn-primary btn-xs">配当</button>
+						</a><a href="/history?code={asset.code}">
+							<button class="btn btn-outline btn-primary btn-xs">履歴</button>
 						</a></td
 					>
 				</tr>
