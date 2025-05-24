@@ -22,9 +22,9 @@ export const load = async ({ parent, data, url }) => {
 const buildTransactionHistory = (data: any[]) => {
 	for (const [index, record] of data.entries()) {
 		if (record.recordDate) {
-			data[index] = { ...record, eventDate: new Date(record.recordDate).toLocaleDateString('ja-JP') }
+			data[index] = { ...record, eventDate: new Date(record.recordDate) }
 		} else if (record.tradeAt) {
-			data[index] = { ...record, eventDate: new Date(record.tradeAt).toLocaleDateString('ja-JP') }
+			data[index] = { ...record, eventDate: new Date(record.tradeAt) }
 		} else {
 			data[index] = record
 		}

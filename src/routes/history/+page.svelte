@@ -19,7 +19,7 @@
 				<td>{record.market}</td>
 				<td>{record.code}</td>
 				<td>{record.name}</td>
-				<td>{record.eventDate}</td>
+				<td>{record.eventDate.toLocaleDateString('ja-JP')}</td>
 				<td>
 					{#if record.dividendId}
 						配当
