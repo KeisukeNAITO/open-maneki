@@ -5,7 +5,7 @@
 </script>
 
 <div class="overflow-x-auto">
-	<table class="table table-zebra table-md">
+	<table class="table-zebra table-md table">
 		<thead>
 			<tr>
 				<th>#</th>

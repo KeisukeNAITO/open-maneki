@@ -2,7 +2,7 @@
 	export let stockInfo;
 </script>
 
-<div class="card w-96 bg-neutral">
+<div class="card bg-neutral w-96">
 	<div class="card-body text-white">
 		<h2 class="card-title">{stockInfo.code} <span class="font-normal">{stockInfo.market}</span></h2>
 		<p>銘柄名 {stockInfo.name}</p>

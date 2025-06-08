@@ -2,7 +2,7 @@
 	export let data;
 </script>
 
-<table class="table table-zebra table-md" role="grid" aria-label="資産一覧">
+<table class="table-zebra table-md table" role="grid" aria-label="資産一覧">
 	<thead>
 		<tr>
 			<th>市場</th>

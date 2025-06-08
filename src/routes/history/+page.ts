@@ -22,14 +22,14 @@ export const load = async ({ parent, data, url }) => {
 const buildTransactionHistory = (data: any[]) => {
 	for (const [index, record] of data.entries()) {
 		if (record.recordDate) {
-			data[index] = { ...record, eventDate: new Date(record.recordDate) }
+			data[index] = { ...record, eventDate: new Date(record.recordDate) };
 		} else if (record.tradeAt) {
-			data[index] = { ...record, eventDate: new Date(record.tradeAt) }
+			data[index] = { ...record, eventDate: new Date(record.tradeAt) };
 		} else {
-			data[index] = record
+			data[index] = record;
 		}
 	}
 
-	data.sort((a, b) => a.eventDate - b.eventDate)
+	data.sort((a, b) => a.eventDate - b.eventDate);
 	return data;
 };

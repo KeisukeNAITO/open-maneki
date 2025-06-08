@@ -17,7 +17,7 @@
 </script>
 
 <div
-	class="card w-96 bg-neutral {tradeTransaction === TRADE_TYPE.BUY
+	class="card bg-neutral w-96 {tradeTransaction === TRADE_TYPE.BUY
 		? 'outline-red-200'
 		: 'outline-emerald-200'}"
 >
@@ -112,9 +112,9 @@
 	</form>
 	<div class="inline-flex">
 		<a href="/">
-			<button class="rounded-bl-lg bg-neutral">
+			<button class="bg-neutral rounded-bl-lg">
 				<ChevronDoubleLeftOutline
-					class="h-8 w-10 text-base-100"
+					class="text-base-100 h-8 w-10"
 					title={{ id: 'my-title', title: 'Back' }}
 					desc={{ id: 'my-descrip', desc: 'Back to home' }}
 					ariaLabel="red heart"

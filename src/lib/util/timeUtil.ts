@@ -18,8 +18,8 @@ export const calcProgressRate = (now: Date, next: Date, previous: Date) => {
 };
 
 export const removeSystemKey = (data: any) => {
-	if(!data) {
-		return data
+	if (!data) {
+		return data;
 	}
 
 	if (Array.isArray(data)) {
@@ -29,7 +29,7 @@ export const removeSystemKey = (data: any) => {
 	} else {
 		data = removeTimeStamp(data);
 	}
-	return data
+	return data;
 };
 
 export const removeTimeStamp = (data: any) => {
