@@ -20,7 +20,12 @@ export default ts.config(
 		languageOptions: {
 			globals: { ...globals.browser, ...globals.node }
 		},
-		rules: { 'no-undef': 'off', '@typescript-eslint/no-explicit-any': 'off' }
+		rules: {
+			'no-undef': 'off',
+			'@typescript-eslint/no-explicit-any': 'warn',
+			'svelte/no-at-html-tags': 'warn',
+			'svelte/require-each-key': 'warn'
+		}
 	},
 	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
