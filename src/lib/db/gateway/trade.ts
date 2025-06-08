@@ -20,12 +20,20 @@ export const insertTrade = async (param: TradeParam) => {
 };
 
 export interface TradeParam {
+	/** 取引情報ID(ユニーク) */
 	tradeId: number | undefined;
+	/** 売買区分 */
 	transaction: string;
+	/** 市場区分 */
 	market: string;
+	/** 銘柄コード */
 	code: string;
+	/** 銘柄名 */
 	name: string;
+	/** 約定日 */
 	tradeAt: Date;
+	/** 保有株数 */
 	share: number;
+	/** 株価 */
 	price: number;
 }
