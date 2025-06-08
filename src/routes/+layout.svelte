@@ -1,5 +1,4 @@
 <script lang="ts">
-	import 'tailwindcss/tailwind.css';
 	import '../app.css';
 	import { dev, version } from '$app/environment';
 
@@ -8,7 +7,7 @@
 </script>
 
 <div class="flex min-h-screen flex-col">
-	<header class="flex items-center justify-between bg-primary px-6 py-3">
+	<header class="bg-primary flex items-center justify-between px-6 py-3">
 		<h1 class="text-2xl text-xl font-bold">
 			<a href="/" class="text-xl font-bold">Open-Maneki</a>
 		</h1>
@@ -21,7 +20,7 @@
 		<slot />
 	</div>
 
-	<footer class="footer items-center bg-primary p-4">
+	<footer class="footer bg-primary items-center p-4">
 		<aside class="grid-flow-col items-center">
 			<svg
 				width="36"
