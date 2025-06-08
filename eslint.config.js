@@ -24,7 +24,8 @@ export default ts.config(
 			'no-undef': 'off',
 			'@typescript-eslint/no-explicit-any': 'warn',
 			'svelte/no-at-html-tags': 'warn',
-			'svelte/require-each-key': 'warn'
+			'svelte/require-each-key': 'warn',
+			'@typescript-eslint/no-empty-object-type': 'warn'
 		}
 	},
 	{
