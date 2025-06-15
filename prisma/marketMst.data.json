@@ -1,5 +1,6 @@
 [
 	{
+		"marketId": 1,
 		"marketName": "TSE",
 		"officialName": "Tokyo Stock Exchange",
 		"currency": "JPY"
