@@ -1,7 +1,7 @@
 name: Task
 description: A development task, chore, or investigation (mainly for maintainers)
-title: "[Task]: "
-labels: ["task"]
+title: '[Task]: '
+labels: ['task']
 body:
   - type: textarea
     id: details

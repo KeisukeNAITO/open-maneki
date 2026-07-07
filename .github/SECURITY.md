@@ -4,7 +4,7 @@
 
 | Version | Supported |
 | ------- | --------- |
-| latest  | ✅         |
+| latest  | ✅        |
 
 <!-- Update this table to reflect your actual release support policy. -->
 
