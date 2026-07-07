@@ -1,0 +1,23 @@
+title: "[General] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Welcome! Use this space for general questions, feedback, or anything that
+        doesn't fit a Bug Report or Feature Request.
+
+  - type: textarea
+    id: topic
+    attributes:
+      label: What would you like to discuss?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Before posting
+      options:
+        - label: I have searched existing discussions and issues
+          required: true

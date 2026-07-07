@@ -1,0 +1,21 @@
+# CODEOWNERS
+#
+# This file defines who is automatically requested for review when a PR
+# touches specific files or directories.
+#
+# Syntax:
+#   <pattern>  @<owner> [@<owner2> ...]
+#
+# Patterns follow the same rules as .gitignore.
+# The last matching pattern takes precedence.
+#
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default: all files require review from these owners
+*       @OWNER
+
+# Examples (uncomment and customize as needed):
+# /.github/         @OWNER             # CI/CD and repo config
+# /docs/            @OWNER             # Documentation
+# /src/api/         @OWNER @api-team   # API layer
+# /src/frontend/    @OWNER @ui-team    # Frontend

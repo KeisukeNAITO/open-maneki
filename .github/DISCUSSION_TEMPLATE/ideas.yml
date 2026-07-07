@@ -1,0 +1,32 @@
+title: "[Idea] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Got an idea or proposal that's not quite a Feature Request yet?
+        Share it here to start a conversation before opening a formal issue.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What's your idea?
+      description: Describe your idea and the problem it would solve.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Mockups, references, or anything else that helps explain your idea.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Before posting
+      options:
+        - label: I have searched existing discussions and issues
+          required: true
