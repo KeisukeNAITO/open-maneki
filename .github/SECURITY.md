@@ -16,10 +16,7 @@
 
 If you discover a security vulnerability, please report it responsibly:
 
-1. **Go to the [Security tab](../../security/advisories/new)** of this repository and submit a private security advisory.
-   — or —
-2. **Send an email** to: `security@example.com`
-   *(Replace with your actual contact address.)*
+- **Go to the [Security tab](../../security/advisories/new)** of this repository and submit a private security advisory.
 
 Please include the following in your report:
 
