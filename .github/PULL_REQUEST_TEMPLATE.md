@@ -1,52 +1,15 @@
 ## Summary
 
-<!-- Briefly describe what this PR does and why. -->
-
-## Changes
-
-<!--
-List the key changes made in this PR.
-- Changed X to do Y
-- Added Z
--->
-
--
--
-
-## Type of Change
-
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change (existing functionality is affected)
-- [ ] Documentation update
-- [ ] Refactoring / code cleanup
-- [ ] CI/CD / tooling
+<!-- What does this PR do and why? A sentence or two is enough. -->
 
 ## Testing
 
-<!-- Describe how you verified this change works correctly. -->
-
 - [ ] Added / updated automated tests
-- [ ] Manually tested (describe steps below)
+- [ ] Manually tested
+- [ ] Not needed (docs, comments, etc.)
 
-<details>
-<summary>Manual test steps</summary>
-
-1.
-2.
-3.
-
-</details>
-
-## Checklist
-
-- [ ] My code follows the project's coding style and conventions
-- [ ] I have updated documentation if needed
-- [ ] All existing tests pass
-- [ ] No unintended breaking changes (or documented above)
-
-## Related Issues
-
-<!-- Link related issues. Use "Closes #N" to auto-close on merge. -->
-
-Closes #
+<!-- Optional:
+- Manual test steps, if they help the reviewer
+- Related issues: "Closes #N" to auto-close on merge
+- Breaking changes or follow-up work, if any
+-->

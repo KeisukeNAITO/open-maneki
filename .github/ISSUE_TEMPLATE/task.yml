@@ -1,0 +1,12 @@
+name: Task
+description: A development task, chore, or investigation (mainly for maintainers)
+title: "[Task]: "
+labels: ["task"]
+body:
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What needs to be done? Add context, links, or acceptance criteria if useful.
+    validations:
+      required: false

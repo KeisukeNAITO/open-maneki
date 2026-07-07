@@ -6,15 +6,20 @@ on:
   pull_request:
     branches: [main]
 
-# Cancel in-progress runs for the same branch to save resources
+# Cancel in-progress runs for the same branch to save resources.
+# On main, let every run finish so each merged commit is verified.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
+    # Disabled until real install/lint/test commands are in place.
+    # A job that only echoes would report green without verifying anything.
+    # TODO: remove this line when filling in the steps below.
+    if: false
 
     # Uncomment and customize for matrix builds (e.g. multiple Node/Python versions)
     # strategy:
