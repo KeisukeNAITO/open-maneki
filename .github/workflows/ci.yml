@@ -16,70 +16,25 @@ jobs:
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
-    # Disabled until real install/lint/test commands are in place.
-    # A job that only echoes would report green without verifying anything.
-    # TODO: remove this line when filling in the steps below.
-    if: false
-
-    # Uncomment and customize for matrix builds (e.g. multiple Node/Python versions)
-    # strategy:
-    #   matrix:
-    #     node-version: [18, 20, 22]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # --- Language / Runtime Setup ---
-      # Uncomment the block that matches your project:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
-      # Node.js
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
-      #     cache: npm
-
-      # Python
-      # - name: Setup Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: '3.12'
-
-      # Go
-      # - name: Setup Go
-      #   uses: actions/setup-go@v5
-      #   with:
-      #     go-version: stable
-
-      # Java
-      # - name: Setup Java
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     distribution: temurin
-      #     java-version: 21
-
-      # --- Install Dependencies ---
       - name: Install dependencies
-        run: |
-          # TODO: replace with your install command
-          # npm ci
-          # pip install -r requirements.txt
-          # go mod download
-          echo "Replace this step with your install command"
+        run: npm ci
 
-      # --- Lint ---
       - name: Lint
-        run: |
-          # TODO: replace with your lint command
-          # npm run lint
-          echo "Replace this step with your lint command"
+        run: npm run lint
 
-      # --- Test ---
+      - name: Check
+        run: npm run check
+
       - name: Test
-        run: |
-          # TODO: replace with your test command
-          # npm test
-          # pytest
-          # go test ./...
-          echo "Replace this step with your test command"
+        run: npm test
