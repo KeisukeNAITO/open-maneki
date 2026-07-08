@@ -56,18 +56,21 @@ We are committed to providing a welcoming and inclusive environment for everyone
 
 ## Development Setup
 
-<!-- Describe how to set up a local development environment. -->
-
 ```bash
 # 1. Clone the repository
-git clone https://github.com/OWNER/REPO.git
-cd REPO
+git clone https://github.com/KeisukeNAITO/open-maneki.git
+cd open-maneki
 
 # 2. Install dependencies
-# TODO: add install command
+npm install
 
-# 3. Run tests
-# TODO: add test command
+# 3. Set up environment variables
+cp .env.example .env
+
+# 4. Run checks and tests
+npm run lint
+npm run check
+npm test
 ```
 
 ---
