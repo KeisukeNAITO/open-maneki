@@ -1,0 +1,13 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  // Generate into src/lib/server so SvelteKit's server-only module
+  // boundary prevents the DB client from leaking into client bundles.
+  output   = "../src/lib/server/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
