@@ -11,3 +11,57 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+// 種別カラムは SQLite が enum 非対応のため String で持ち、
+// 値の検証は src/lib/server/ の TS ユニオン型で行う。
+// 金額は最小通貨単位の Int（JPY は円、USD はセント）。
+
+model Account {
+  id           Int           @id @default(autoincrement())
+  name         String // 例: "楽天証券", "○○銀行"
+  type         String // "TAXABLE" | "NISA" | "DC"
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+}
+
+model Asset {
+  id                 Int           @id @default(autoincrement())
+  name               String // 例: "トヨタ自動車", "JPY 現金"
+  type               String // "CASH" | "STOCK_JP" | "STOCK_US" | "FUND"
+  symbol             String? // 証券コード・ティッカー（現金は null）
+  currency           String // "JPY" | "USD"
+  shareholderBenefit String? // 株主優待メモ（自由記述）
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  transactions       Transaction[]
+  marketPrices       MarketPrice[]
+}
+
+// 保有状況（口数・取得原価・現金残高）はテーブルに持たず、
+// この取引台帳からロジック層で導出する。
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  accountId  Int
+  assetId    Int
+  type       String // "BUY" | "SELL" | "DIVIDEND" | "DEPOSIT" | "WITHDRAW"
+  occurredAt DateTime
+  quantity   Int? // BUY/SELL の株数・口数（CASH・配当は null）
+  amount     Int // 受渡金額（最小通貨単位・手数料込み）
+  currency   String // "JPY" | "USD"
+  note       String? // 売買理由などのメモ
+  createdAt  DateTime @default(now())
+  account    Account  @relation(fields: [accountId], references: [id])
+  asset      Asset    @relation(fields: [assetId], references: [id])
+}
+
+model MarketPrice {
+  id      Int      @id @default(autoincrement())
+  assetId Int
+  date    DateTime // 終値・基準価額の基準日（日足）
+  price   Int // 最小通貨単位。投資信託は 1 万口あたりの基準価額
+  source  String   @default("MANUAL") // 将来の API 取得時に値を追加
+  asset   Asset    @relation(fields: [assetId], references: [id])
+
+  @@unique([assetId, date])
+}
