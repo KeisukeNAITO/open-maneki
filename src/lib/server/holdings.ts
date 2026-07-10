@@ -38,6 +38,23 @@ export function derivePosition(transactions: readonly TransactionInput[]): Posit
 				costBasis += tx.amount;
 				break;
 			}
+			case 'SELL': {
+				if (tx.quantity === null || !Number.isInteger(tx.quantity) || tx.quantity <= 0) {
+					throw new Error(`SELL requires a positive integer quantity, got: ${tx.quantity}`);
+				}
+				if (tx.quantity > quantity) {
+					throw new Error(
+						`SELL quantity ${tx.quantity} exceeds current holding ${quantity} at ${tx.occurredAt.toISOString()}`
+					);
+				}
+				// 移動平均法: 取得原価を売却口数の比率で取り崩す。
+				// 平均単価を先に丸めず総額から按分することで、全量売却時に
+				// 取得原価が誤差なくちょうどゼロになる。
+				const costOut = Math.round((costBasis * tx.quantity) / quantity);
+				quantity -= tx.quantity;
+				costBasis -= costOut;
+				break;
+			}
 			default:
 				throw new Error(`Transaction type not yet supported: ${tx.type}`);
 		}
