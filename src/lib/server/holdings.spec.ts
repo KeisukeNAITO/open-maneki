@@ -68,7 +68,9 @@ describe('derivePosition', () => {
 	});
 
 	it('quantity のない BUY はエラーにする', () => {
-		expect(() => derivePosition([buy(null, 250_000)])).toThrowError(/positive integer quantity/);
+		expect(() => derivePosition([buy(null, 250_000)])).toThrowError(
+			/BUY quantity must be a positive integer/
+		);
 	});
 
 	it('未知の取引種別はエラーにする', () => {

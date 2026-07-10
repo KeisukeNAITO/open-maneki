@@ -15,6 +15,14 @@ export type Position = {
 	costBasis: number; // 取得原価の合計（平均取得単価 = costBasis / quantity）
 };
 
+// 数量・金額に共通の検証。アサーション関数なので、呼び出し後は
+// value が number（null でない）に絞り込まれる。
+function assertPositiveInteger(value: number | null, context: string): asserts value is number {
+	if (value === null || !Number.isInteger(value) || value <= 0) {
+		throw new Error(`${context} must be a positive integer, got: ${value}`);
+	}
+}
+
 /**
  * 1 銘柄 × 1 口座分の取引履歴から保有状況を導出する（移動平均法）。
  * 入力の順序に依存しないよう、発生日時の昇順で処理する。
@@ -31,17 +39,13 @@ export function derivePosition(transactions: readonly TransactionInput[]): Posit
 		}
 		switch (tx.type) {
 			case 'BUY': {
-				if (tx.quantity === null || !Number.isInteger(tx.quantity) || tx.quantity <= 0) {
-					throw new Error(`BUY requires a positive integer quantity, got: ${tx.quantity}`);
-				}
+				assertPositiveInteger(tx.quantity, 'BUY quantity');
 				quantity += tx.quantity;
 				costBasis += tx.amount;
 				break;
 			}
 			case 'SELL': {
-				if (tx.quantity === null || !Number.isInteger(tx.quantity) || tx.quantity <= 0) {
-					throw new Error(`SELL requires a positive integer quantity, got: ${tx.quantity}`);
-				}
+				assertPositiveInteger(tx.quantity, 'SELL quantity');
 				if (tx.quantity > quantity) {
 					throw new Error(
 						`SELL quantity ${tx.quantity} exceeds current holding ${quantity} at ${tx.occurredAt.toISOString()}`
