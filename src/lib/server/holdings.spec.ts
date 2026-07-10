@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { derivePosition, type TransactionInput } from './holdings';
+import { deriveCashBalance, derivePosition, type TransactionInput } from './holdings';
 
 function buy(quantity: number | null, amount: number, occurredAt = '2026-01-01'): TransactionInput {
 	return { type: 'BUY', occurredAt: new Date(occurredAt), quantity, amount };
@@ -11,6 +11,10 @@ function sell(
 	occurredAt = '2026-06-01'
 ): TransactionInput {
 	return { type: 'SELL', occurredAt: new Date(occurredAt), quantity, amount };
+}
+
+function cash(type: 'DEPOSIT' | 'WITHDRAW', amount: number, occurredAt = '2026-01-01') {
+	return { type, occurredAt: new Date(occurredAt), quantity: null, amount };
 }
 
 describe('derivePosition', () => {
@@ -76,5 +80,59 @@ describe('derivePosition', () => {
 	it('未知の取引種別はエラーにする', () => {
 		const tx = { type: 'AIRDROP', occurredAt: new Date('2026-01-01'), quantity: 1, amount: 0 };
 		expect(() => derivePosition([tx])).toThrowError(/Unknown transaction type/);
+	});
+
+	it('DIVIDEND は口数・取得原価に影響しない', () => {
+		const dividend: TransactionInput = {
+			type: 'DIVIDEND',
+			occurredAt: new Date('2026-04-01'),
+			quantity: null,
+			amount: 5_000
+		};
+		const position = derivePosition([buy(100, 250_000, '2026-01-05'), dividend]);
+		expect(position).toEqual({ quantity: 100, costBasis: 250_000 });
+	});
+
+	it('現金取引（DEPOSIT）が紛れ込んだらエラーにする', () => {
+		expect(() => derivePosition([cash('DEPOSIT', 100_000)])).toThrowError(
+			/not applicable to a security position/
+		);
+	});
+});
+
+describe('deriveCashBalance', () => {
+	it('取引がなければ残高ゼロを返す', () => {
+		expect(deriveCashBalance([])).toBe(0);
+	});
+
+	it('入金と出金を積み上げて残高を出す', () => {
+		const balance = deriveCashBalance([
+			cash('DEPOSIT', 500_000, '2026-01-05'),
+			cash('WITHDRAW', 120_000, '2026-02-01'),
+			cash('DEPOSIT', 30_000, '2026-03-01')
+		]);
+		expect(balance).toBe(410_000);
+	});
+
+	it('配列の並び順ではなく発生日時の順に処理する', () => {
+		// 配列上は WITHDRAW が先頭だが、日付は DEPOSIT の後
+		const balance = deriveCashBalance([
+			cash('WITHDRAW', 120_000, '2026-02-01'),
+			cash('DEPOSIT', 500_000, '2026-01-05')
+		]);
+		expect(balance).toBe(380_000);
+	});
+
+	it('残高を超える出金はエラーにする', () => {
+		expect(() =>
+			deriveCashBalance([
+				cash('DEPOSIT', 100_000, '2026-01-05'),
+				cash('WITHDRAW', 100_001, '2026-02-01')
+			])
+		).toThrowError(/exceeds current balance/);
+	});
+
+	it('証券取引（BUY）が紛れ込んだらエラーにする', () => {
+		expect(() => deriveCashBalance([buy(100, 250_000)])).toThrowError(/not applicable to cash/);
 	});
 });

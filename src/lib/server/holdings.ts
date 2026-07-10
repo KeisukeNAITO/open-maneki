@@ -59,10 +59,52 @@ export function derivePosition(transactions: readonly TransactionInput[]): Posit
 				costBasis -= costOut;
 				break;
 			}
+			case 'DIVIDEND':
+				// 配当は口数・取得原価に影響しない（実績記録として台帳に残るのみ）。
+				// 現金残高への反映は複式簿記的連動を見送ったため行わない（PR #6）。
+				break;
 			default:
-				throw new Error(`Transaction type not yet supported: ${tx.type}`);
+				// DEPOSIT / WITHDRAW は CASH 資産の取引。証券ポジションに
+				// 紛れ込んでいたら呼び出し側の振り分けバグなので即エラー。
+				throw new Error(`Transaction type not applicable to a security position: ${tx.type}`);
 		}
 	}
 
 	return { quantity, costBasis };
+}
+
+/**
+ * 現金（CASH 資産）の取引履歴から残高を導出する。
+ * BUY / SELL との複式簿記的連動は行わない（PR #6 で見送り）ため、
+ * 残高は DEPOSIT / WITHDRAW の積み上げのみで決まる。
+ */
+export function deriveCashBalance(transactions: readonly TransactionInput[]): number {
+	const ordered = transactions.toSorted((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime());
+
+	let balance = 0;
+
+	for (const tx of ordered) {
+		if (!isTransactionType(tx.type)) {
+			throw new Error(`Unknown transaction type: ${tx.type}`);
+		}
+		switch (tx.type) {
+			case 'DEPOSIT':
+				assertPositiveInteger(tx.amount, 'DEPOSIT amount');
+				balance += tx.amount;
+				break;
+			case 'WITHDRAW':
+				assertPositiveInteger(tx.amount, 'WITHDRAW amount');
+				if (tx.amount > balance) {
+					throw new Error(
+						`WITHDRAW amount ${tx.amount} exceeds current balance ${balance} at ${tx.occurredAt.toISOString()}`
+					);
+				}
+				balance -= tx.amount;
+				break;
+			default:
+				throw new Error(`Transaction type not applicable to cash: ${tx.type}`);
+		}
+	}
+
+	return balance;
 }
