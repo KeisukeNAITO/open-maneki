@@ -8,6 +8,7 @@ Thank you for your interest in contributing! This guide explains how to get invo
 - [How to Report a Bug](#how-to-report-a-bug)
 - [How to Request a Feature](#how-to-request-a-feature)
 - [How to Submit a Pull Request](#how-to-submit-a-pull-request)
+- [Use of AI Tools](#use-of-ai-tools)
 - [Development Setup](#development-setup)
 - [Coding Conventions](#coding-conventions)
 - [Commit Message Guidelines](#commit-message-guidelines)
@@ -51,6 +52,30 @@ We are committed to providing a welcoming and inclusive environment for everyone
 5. Open a Pull Request against the `main` branch using the PR template.
 
 > **Note:** For large changes, please open an issue or discussion first to align on the approach before writing code.
+
+> **Note:** Please write issues, pull requests, and commit messages in English.
+> English is not the maintainer's first language either — we are both doing our
+> best here for contributors who may join from anywhere in the world.
+> Clarity beats perfection.
+
+---
+
+## Use of AI Tools
+
+You are welcome to use AI tools (coding assistants, LLMs, etc.) when
+contributing. We do not require you to disclose whether or how you used them.
+
+Whatever tools you use, you are the author of your contribution and fully
+responsible for it:
+
+- Understand every change you submit, and be ready to explain and discuss it
+  in review.
+- Test your changes yourself before opening a pull request.
+- Do not submit machine-generated output as-is without reviewing it yourself.
+
+Maintainers may close a pull request or issue at their discretion when it
+appears to be unverified generated output, or when no one — including the
+author — can explain what it does.
 
 ---
 
