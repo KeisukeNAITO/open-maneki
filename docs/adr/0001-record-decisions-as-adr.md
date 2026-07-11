@@ -1,20 +1,20 @@
-# 0001. 設計上の意思決定を ADR として記録する
+# 0001. Record design decisions as ADRs
 
-日付: 2026-07-11
+Date: 2026-07-11
 
-## 背景
+## Context
 
-スキーマ設計や計算ロジックに関する重要な判断（採用したものも見送ったものも）が、これまで PR の説明文に散在していた。PR 説明文は経緯を残す場所としては有効だが、決定だけを一覧して辿る手段がなく、リポジトリが成長すると「なぜこうなっているのか」を探すコストが上がる。
+Significant design decisions — both what was adopted and what was deliberately deferred — have so far been scattered across pull request descriptions. PR descriptions are a valid place to record context, but there is no way to browse decisions as a list, and as the repository grows, answering "why is it built this way?" becomes increasingly expensive.
 
-## 決定
+## Decision
 
-Architecture Decision Record（ADR）を `docs/adr/` で運用する。
+Operate Architecture Decision Records (ADRs) under `docs/adr/`.
 
-- 1 決定 1 ファイル、4 桁連番＋英語ケバブケースのファイル名（例: `0002-derive-holdings-from-transaction-ledger.md`）
-- 本文は「背景 / 決定 / 結果」の 3 節構成
-- ADR は追記のみ。決定を覆す・修正する場合は編集せず、新しい ADR を追加し、旧 ADR の冒頭に後継への参照を追記する
-- アーキテクチャや設計方針に影響する判断が対象。日々の実装判断まで書くことは求めない
+- One decision per file, named with a 4-digit sequence number and an English kebab-case slug (e.g. `0002-derive-holdings-from-transaction-ledger.md`)
+- Each ADR has three sections: Context / Decision / Consequences
+- ADRs are append-only. To reverse or revise a decision, do not edit the original — add a new ADR and prepend a reference to the successor at the top of the old one
+- The scope is decisions that affect architecture or design policy; day-to-day implementation choices do not require an ADR
 
-## 結果
+## Consequences
 
-設計判断の経緯がリポジトリ内で完結して辿れるようになる。運用開始にあたり、既存の主要決定を 0002〜0006 として転記した。
+The history of design decisions can be traced entirely within the repository. To start the practice, the existing major decisions have been backfilled as ADRs 0002–0006.

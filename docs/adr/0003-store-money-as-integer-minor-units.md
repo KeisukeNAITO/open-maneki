@@ -1,20 +1,20 @@
-# 0003. 金額は整数の最小通貨単位で保持する
+# 0003. Store money as integers in minor currency units
 
-日付: 2026-07-09（PR #6）
+Date: 2026-07-09 (PR #6)
 
-## 背景
+## Context
 
-SQLite では Prisma の `Decimal` 型が使えない。`Float` は二進浮動小数点の丸め誤差があり、金額の保持には不適切。
+Prisma's `Decimal` type is not supported on SQLite. `Float` is unsuitable for money because of binary floating-point rounding errors.
 
-## 決定
+## Decision
 
-金額カラムはすべて `Int` とし、通貨ごとの最小単位で保持する。
+All money columns are `Int`, stored in the minor unit of each currency:
 
-- JPY: 円
-- USD: セント
+- JPY: yen
+- USD: cents
 
-投資信託は口数を整数で保持し、基準価額は 1 万口あたりの金額として扱う。
+Mutual funds hold quantity as an integer number of units, and their prices are expressed as the amount per 10,000 units.
 
-## 結果
+## Consequences
 
-丸め誤差なく金額を加減算できる。表示時には通貨ごとに桁の変換（USD はセント → ドル表記）が必要になる。通貨を追加する場合は、その通貨の最小単位を決めてから導入する。
+Money can be added and subtracted without rounding errors. Display code must convert per currency (e.g. cents → dollar notation for USD). When adding a new currency, decide its minor unit first.

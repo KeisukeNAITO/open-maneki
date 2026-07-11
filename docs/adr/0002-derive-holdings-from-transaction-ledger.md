@@ -1,15 +1,15 @@
-# 0002. 保有状況は Holding テーブルを持たず Transaction 台帳から導出する
+# 0002. Derive holdings from the transaction ledger instead of a Holding table
 
-日付: 2026-07-09（PR #6）
+Date: 2026-07-09 (PR #6)
 
-## 背景
+## Context
 
-初期のスキーマ案は 5 モデルで、保有口数・取得原価・現金残高を保持する `Holding` テーブルを含んでいた。しかし取引を記録するたびに `Transaction` と `Holding` の両方を更新する必要があり、更新漏れやバグによって台帳と保有状態が食い違う（どちらが正しいか判定できない）リスクがある。
+The initial schema draft had five models, including a `Holding` table that stored quantity, acquisition cost, and cash balance. However, every recorded trade would have required updating both `Transaction` and `Holding`, and a missed update or a bug could leave the ledger and the holding state inconsistent — with no way to tell which one is correct.
 
-## 決定
+## Decision
 
-`Holding` テーブルを廃止し、スキーマは 4 モデル（`Account` / `Asset` / `Transaction` / `MarketPrice`）とする。保有口数・取得原価・現金残高は `Transaction` 台帳からロジック層（`src/lib/server/holdings.ts`）の純関数で導出する。真実の源泉を台帳 1 つに保つ。
+Drop the `Holding` table and keep the schema to four models (`Account` / `Asset` / `Transaction` / `MarketPrice`). Quantity, acquisition cost, and cash balance are derived from the `Transaction` ledger by pure functions in the logic layer (`src/lib/server/holdings.ts`). The ledger remains the single source of truth.
 
-## 結果
+## Consequences
 
-台帳と保有状態の不整合が構造的に発生しなくなる。一方で保有状況の参照のたびに取引履歴の走査が必要になるが、シングルユーザーの取引件数では問題にならない見込み。将来パフォーマンスが問題になった場合は、スナップショットやキャッシュの導入をその時点で検討する。
+Inconsistency between the ledger and holding state is structurally impossible. Reading holdings requires scanning the transaction history each time, but this is not expected to be a problem at single-user transaction volumes. If performance ever becomes an issue, snapshots or caching will be considered at that point.

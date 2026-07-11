@@ -1,15 +1,15 @@
-# 0004. 種別カラムは String で保持し TypeScript のユニオン型で検証する
+# 0004. Store type columns as String and validate with TypeScript union types
 
-日付: 2026-07-09（PR #6）
+Date: 2026-07-09 (PR #6)
 
-## 背景
+## Context
 
-口座種別（`TAXABLE` / `NISA` / `DC`）や取引種別（`BUY` / `SELL` / `DIVIDEND` / `DEPOSIT` / `WITHDRAW`）など、値の集合が決まっているカラムが複数ある。SQLite では Prisma の `enum` が使えない。
+Several columns have a fixed set of allowed values, such as account type (`TAXABLE` / `NISA` / `DC`) and transaction type (`BUY` / `SELL` / `DIVIDEND` / `DEPOSIT` / `WITHDRAW`). Prisma's `enum` is not supported on SQLite.
 
-## 決定
+## Decision
 
-種別カラムはスキーマ上 `String` で保持し、許容値は TypeScript のユニオン型＋型ガード（`src/lib/server/types.ts`）で検証する。型定義はロジック層に集約する。
+Type columns are `String` in the schema, and the allowed values are enforced by TypeScript union types with type guards (`src/lib/server/types.ts`). Type definitions are centralized in the logic layer.
 
-## 結果
+## Consequences
 
-DB レベルでは不正値の混入を防げないため、書き込み経路では必ず型ガードを通す。ロジック層の関数は構造的部分型で Prisma の行をそのまま受け取れるため、変換レイヤーは不要。種別を追加する場合はユニオン型の更新のみで済む（マイグレーション不要）。
+The database cannot reject invalid values, so every write path must go through the type guards. Logic-layer functions accept Prisma rows as-is via structural subtyping, so no conversion layer is needed. Adding a new type value only requires updating the union type (no migration).

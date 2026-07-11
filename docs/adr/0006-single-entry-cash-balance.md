@@ -1,15 +1,15 @@
-# 0006. 現金残高は DEPOSIT / WITHDRAW のみから導出する（単式簿記）
+# 0006. Derive cash balance from DEPOSIT / WITHDRAW only (single-entry bookkeeping)
 
-日付: 2026-07-11（PR #7。見送り自体は PR #6 で決定）
+Date: 2026-07-11 (PR #7; the deferral itself was decided in PR #6)
 
-## 背景
+## Context
 
-証券の購入・売却や配当の受け取りは、現実には口座の現金残高と連動する。これを複式簿記的にモデル化する（BUY が現金を減らし、DIVIDEND が現金を増やす）ことも可能だが、取引間の整合性検証や通貨・口座をまたぐ処理が必要になり、スキーマとロジックが大きく複雑化する。
+In reality, buying or selling securities and receiving dividends all move the cash balance of an account. Modeling this in a double-entry style (a `BUY` decreases cash, a `DIVIDEND` increases it) is possible, but it would require cross-transaction consistency checks and handling across currencies and accounts, significantly complicating both the schema and the logic.
 
-## 決定
+## Decision
 
-現金残高は `DEPOSIT` / `WITHDRAW` 取引のみから導出する単式簿記とする。`BUY` / `SELL` / `DIVIDEND` は現金残高に影響しない。現金は `CASH` 種別の `Asset` として保持し、総資産の集計を他の資産種別と同じコードパスで扱う。
+Cash balance is derived from `DEPOSIT` / `WITHDRAW` transactions only (single-entry bookkeeping). `BUY` / `SELL` / `DIVIDEND` do not affect the cash balance. Cash itself is held as an `Asset` of type `CASH`, so total-asset aggregation uses the same code path as every other asset type.
 
-## 結果
+## Consequences
 
-導出ロジック（`deriveCashBalance`）が単純に保たれる。現金の動きはユーザーが `DEPOSIT` / `WITHDRAW` を手入力する必要がある。手間が問題になった場合は、導出ロジック側を複式簿記化するのではなく、取引登録側でペア取引の生成（例: `DIVIDEND` 登録時に対応する `DEPOSIT` の作成を提案する）で解決する方針。
+The derivation logic (`deriveCashBalance`) stays simple. Users must enter `DEPOSIT` / `WITHDRAW` manually to track cash movements. If that becomes tedious, the solution is not to make the derivation double-entry, but to generate paired transactions at registration time (e.g. when a `DIVIDEND` is registered, suggest creating the corresponding `DEPOSIT`).

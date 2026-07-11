@@ -1,15 +1,15 @@
-# 0005. 取得原価の移動平均は平均単価を丸めず総額から按分する
+# 0005. Compute average cost by prorating the total amount, not by rounding the unit price first
 
-日付: 2026-07-11（PR #7）
+Date: 2026-07-11 (PR #7)
 
-## 背景
+## Context
 
-取得原価の管理は移動平均法を採用する。実装方式として「平均単価を先に丸めて確定し、売却口数に乗じる」方法を取ると、金額を整数で保持している（ADR 0003）ため丸めの累積が起こり、全量売却したのに取得原価が数円残る（またはマイナスになる）状態が発生し得る。
+Acquisition cost is managed by the moving-average method. If the implementation rounded the average unit price first and then multiplied it by the quantity sold, rounding would accumulate — because money is stored as integers (ADR 0003) — and selling an entire position could leave a few yen of acquisition cost behind (or drive it negative).
 
-## 決定
+## Decision
 
-売却時の原価の取り崩しは、平均単価を先に丸めず、取得原価の総額から売却口数の比で按分して算出する（四捨五入）。これにより「口数ゼロ ⇔ 取得原価ゼロ」の不変条件が誤差なく成立する。実装は `src/lib/server/holdings.ts` の `derivePosition`。
+When a sale reduces the position, the cost released is computed by prorating the total acquisition cost by the ratio of quantity sold (rounded half up), without rounding the average unit price first. This guarantees the invariant "quantity is zero if and only if acquisition cost is zero" without error. Implemented in `derivePosition` in `src/lib/server/holdings.ts`.
 
-## 結果
+## Consequences
 
-全量売却時に端数が残らないことがテストで保証できる。なお、税法上の「総平均法に準ずる方法」は平均単価を円未満切上げで都度確定するため、本実装とは端数がズレ得る。本アプリの目的は資産状況の把握であり納税額の計算ではないため、自己整合性を優先した。
+Tests can guarantee that no residual cost remains after a full sale. Note that the Japanese tax method ("method equivalent to the periodic average method") fixes the average unit price by rounding up to the yen at each purchase, so its figures can differ from this implementation by rounding. The purpose of this app is understanding one's asset position, not computing tax amounts, so self-consistency was prioritized.
