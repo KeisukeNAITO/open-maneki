@@ -92,7 +92,13 @@ npm install
 # 3. Set up environment variables
 cp .env.example .env
 
-# 4. Run checks and tests
+# 4. Create the SQLite database and generate the Prisma client
+npx prisma migrate dev
+
+# 5. (Optional) Load sample data for development
+npx prisma db seed
+
+# 6. Run checks and tests
 npm run lint
 npm run check
 npm test
