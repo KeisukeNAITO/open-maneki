@@ -16,7 +16,7 @@ Designed for personal, single-user use.
 ## Tech stack
 
 - [SvelteKit](https://svelte.dev/docs/kit) + TypeScript
-- Prisma + SQLite (planned)
+- Prisma + SQLite
 - Vitest / ESLint / Prettier
 
 ## Development
@@ -25,6 +25,9 @@ Requires Node.js 22 or later.
 
 ```bash
 npm install
+cp .env.example .env
+npx prisma migrate dev   # create the SQLite database and generate the Prisma client
+npx prisma db seed       # (optional) load sample data
 npm run dev
 ```
 
