@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
@@ -7,5 +8,10 @@
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
+
+<nav>
+	<a href={resolve('/')}>資産一覧</a>
+	<a href={resolve('/prices')}>価格登録</a>
+</nav>
 
 {@render children()}
