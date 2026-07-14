@@ -1,4 +1,5 @@
 import { parseMoney } from '../format';
+import { INT32_MAX, parseDateOnly } from './forms';
 
 // 価格登録フォームの検証ロジック。routes を薄く保つ方針（コード構成方針 2）に従い、
 // 検証ルールはここに置く。buildOverview と同様に DB 非依存の純粋関数とし、
@@ -34,9 +35,6 @@ export type ValidatedMarketPrice = {
 export type MarketPriceValidation =
 	{ ok: true; value: ValidatedMarketPrice } | { ok: false; errors: MarketPriceErrors };
 
-// Prisma の Int は 32bit 符号付き。超える価格は保存時に落ちるため境界で弾く。
-const INT32_MAX = 2_147_483_647;
-
 /**
  * 価格登録フォームの入力を検証する。
  * エラーは項目ごとに集めて一括で返す（1 件目で打ち切らない）。
@@ -63,20 +61,15 @@ export function validateMarketPriceForm(
 	}
 
 	let date: Date | null = null;
-	if (!input.date || !/^\d{4}-\d{2}-\d{2}$/.test(input.date)) {
-		errors.date = '基準日を YYYY-MM-DD 形式で入力してください';
+	const parsedDate = parseDateOnly(input.date, today);
+	if (parsedDate.ok) {
+		date = parsedDate.date;
 	} else {
-		// MarketPrice.date は UTC 深夜 0 時で保存する（既存データと同じ規約）
-		const candidate = new Date(`${input.date}T00:00:00Z`);
-		// 2026-02-31 のような存在しない日付は Date が翌月に繰り上げてしまうため、
-		// ISO 文字列に戻して入力と一致することを確認する
-		if (Number.isNaN(candidate.getTime()) || candidate.toISOString().slice(0, 10) !== input.date) {
-			errors.date = '存在しない日付です';
-		} else if (candidate.getTime() > today.getTime()) {
-			errors.date = '未来の日付は登録できません';
-		} else {
-			date = candidate;
-		}
+		errors.date = {
+			FORMAT: '基準日を YYYY-MM-DD 形式で入力してください',
+			NONEXISTENT: '存在しない日付です',
+			FUTURE: '未来の日付は登録できません'
+		}[parsedDate.error];
 	}
 
 	let price: number | null = null;

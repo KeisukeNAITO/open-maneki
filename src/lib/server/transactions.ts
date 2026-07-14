@@ -1,0 +1,220 @@
+import { parseMoney } from '../format';
+import { INT32_MAX, parseDateOnly } from './forms';
+import { deriveCashBalance, derivePosition, type TransactionInput } from './holdings';
+import { isTransactionType, type TransactionType } from './types';
+
+// 取引登録フォームの検証ロジック。prices.ts と同じ構成で、
+// DB 非依存の純粋関数とし、取得・書き込みは +page.server.ts 側で行う。
+// 検証は 2 段階:
+//   1. validateTransactionForm — 形式検証（全項目のエラーを一括で返す）
+//   2. checkLedgerInvariants — 台帳のシミュレーション検証（導出関数を判定器として使う）
+
+// フォームから来る生の値。FormData.get() は string | File | null を返すため、
+// 文字列でないものは null に落としてから渡す。
+export type TransactionFormInput = {
+	accountId: string | null;
+	assetId: string | null;
+	type: string | null;
+	occurredAt: string | null;
+	quantity: string | null;
+	amount: string | null;
+	note: string | null;
+};
+
+// 検証に必要な列だけを持つ構造的部分型（Prisma の行をそのまま渡せる）。
+export type TransactionTargetAccount = {
+	id: number;
+};
+
+export type TransactionTargetAsset = {
+	id: number;
+	type: string;
+	currency: string;
+};
+
+export type TransactionFormErrors = {
+	accountId?: string;
+	assetId?: string;
+	type?: string;
+	occurredAt?: string;
+	quantity?: string;
+	amount?: string;
+	// checkLedgerInvariants のエラー。特定の項目でなく取引全体の矛盾なので独立させる
+	ledger?: string;
+};
+
+// 検証済みの値。そのまま prisma.transaction.create の data に渡せる形。
+export type ValidatedTransaction = {
+	accountId: number;
+	assetId: number;
+	type: TransactionType;
+	occurredAt: Date;
+	quantity: number | null;
+	amount: number;
+	currency: string;
+	note: string | null;
+};
+
+export type TransactionValidation =
+	{ ok: true; value: ValidatedTransaction } | { ok: false; errors: TransactionFormErrors };
+
+/**
+ * 取引登録フォームの入力を検証する（形式検証）。
+ * エラーは項目ごとに集めて一括で返す（1 件目で打ち切らない）。
+ *
+ * 口座・資産の存在確認は呼び出し側の責務: ID で引いた行を渡し、
+ * 見つからなければ null を渡す。通貨はフォームから受け取らず、
+ * 選択された資産の currency を採用する（不一致の入りようがない）。
+ *
+ * @param today 「今日」の UTC 深夜 0 時。未来日判定に使う（parseDateOnly 参照）
+ */
+export function validateTransactionForm(
+	input: TransactionFormInput,
+	account: TransactionTargetAccount | null,
+	asset: TransactionTargetAsset | null,
+	today: Date
+): TransactionValidation {
+	const errors: TransactionFormErrors = {};
+
+	if (account === null) {
+		errors.accountId = '口座を選択してください';
+	}
+	if (asset === null) {
+		errors.assetId = '資産を選択してください';
+	}
+
+	let type: TransactionType | null = null;
+	if (!input.type || !isTransactionType(input.type)) {
+		errors.type = '取引種別を選択してください';
+	} else {
+		type = input.type;
+	}
+
+	// 資産種別と取引種別の整合: 入出金 ⇔ CASH、売買・配当 ⇔ 証券
+	if (asset !== null && type !== null && !errors.assetId) {
+		const isCashAsset = asset.type === 'CASH';
+		const isCashType = type === 'DEPOSIT' || type === 'WITHDRAW';
+		if (isCashAsset && !isCashType) {
+			errors.assetId = '現金資産には入金・出金のみ登録できます';
+		} else if (!isCashAsset && isCashType) {
+			errors.assetId = '入金・出金には現金資産を選択してください';
+		}
+	}
+
+	let occurredAt: Date | null = null;
+	const parsedDate = parseDateOnly(input.occurredAt, today);
+	if (parsedDate.ok) {
+		occurredAt = parsedDate.date;
+	} else {
+		errors.occurredAt = {
+			FORMAT: '発生日を YYYY-MM-DD 形式で入力してください',
+			NONEXISTENT: '存在しない日付です',
+			FUTURE: '未来の日付は登録できません'
+		}[parsedDate.error];
+	}
+
+	// 数量: BUY / SELL のみ必須。それ以外の種別に入力されていたら、
+	// 黙って捨てずに明示的に拒否する（「知らずに無視」を避ける）
+	let quantity: number | null = null;
+	const quantityRaw = (input.quantity ?? '').trim();
+	if (type === 'BUY' || type === 'SELL') {
+		const normalized = quantityRaw.replace(/,/g, '');
+		if (!/^\d+$/.test(normalized) || Number(normalized) === 0) {
+			errors.quantity = '数量は正の整数で入力してください';
+		} else if (Number(normalized) > INT32_MAX) {
+			errors.quantity = '数量が大きすぎます';
+		} else {
+			quantity = Number(normalized);
+		}
+	} else if (quantityRaw !== '') {
+		errors.quantity = 'この取引種別に数量は入力できません';
+	}
+
+	let amount: number | null = null;
+	if (!input.amount || input.amount.trim() === '') {
+		errors.amount = '金額を入力してください';
+	} else if (asset !== null) {
+		// 資産が不明な間は通貨が決まらず形式検証できない（assetId 側のエラーで足りる）
+		const parsedAmount = parseMoney(input.amount, asset.currency);
+		if (parsedAmount === null) {
+			errors.amount =
+				asset.currency === 'JPY'
+					? '金額は円の整数で入力してください'
+					: '金額はドルで小数 2 桁までの数値で入力してください';
+		} else if (parsedAmount === 0) {
+			errors.amount = '金額は 0 より大きい値を入力してください';
+		} else if (parsedAmount > INT32_MAX) {
+			errors.amount = '金額が大きすぎます';
+		} else {
+			amount = parsedAmount;
+		}
+	}
+
+	const trimmedNote = (input.note ?? '').trim();
+	const note = trimmedNote === '' ? null : trimmedNote;
+
+	if (Object.keys(errors).length > 0) {
+		return { ok: false, errors };
+	}
+	// エラーなしなら必須の値は確定しているはず。崩れていたら検証ロジックのバグなので fail fast
+	if (
+		account === null ||
+		asset === null ||
+		type === null ||
+		occurredAt === null ||
+		amount === null
+	) {
+		throw new Error('validateTransactionForm: passed validation but values are missing (bug)');
+	}
+	if ((type === 'BUY' || type === 'SELL') && quantity === null) {
+		throw new Error('validateTransactionForm: quantity missing for BUY/SELL (bug)');
+	}
+	return {
+		ok: true,
+		value: {
+			accountId: account.id,
+			assetId: asset.id,
+			type,
+			occurredAt,
+			quantity,
+			amount,
+			currency: asset.currency,
+			note
+		}
+	};
+}
+
+/**
+ * 台帳のシミュレーション検証: 「既存の取引＋登録候補」で導出を実際に実行し、
+ * 例外が出たら登録を拒否する。売り越し・残高超・バックデートの矛盾
+ * （過去日付で登録すると、その時点の保有 / 残高を超えるケース）をすべて
+ * 導出関数自身に判定させ、不変条件の実装を 1 箇所に保つ。
+ * ここを通さず不正な行が台帳に入ると、次に資産一覧を開いた時点で
+ * 導出が例外を投げ、画面全体が開けなくなる。
+ *
+ * 候補は配列の末尾に足す: toSorted は安定ソートなので、同一日付の既存行の
+ * 後に処理される。これは insert 後の読み取り順（id 昇順）と同じ並びであり、
+ * 検証時と表示時で導出結果がズレない。
+ *
+ * @returns 矛盾があればエラーメッセージ、なければ null
+ */
+export function checkLedgerInvariants(
+	assetType: string,
+	existingTransactions: readonly TransactionInput[],
+	candidate: TransactionInput
+): string | null {
+	try {
+		const simulated = [...existingTransactions, candidate];
+		if (assetType === 'CASH') {
+			deriveCashBalance(simulated);
+		} else {
+			derivePosition(simulated);
+		}
+		return null;
+	} catch (e) {
+		// 導出関数のエラーメッセージ（英語）をそのまま添える。原因（数量・日時）が
+		// 含まれており、検証側で言い換えると将来の導出ルール変更からズレるため
+		const detail = e instanceof Error ? e.message : String(e);
+		return `台帳の整合性が崩れるため登録できません（${detail}）`;
+	}
+}
