@@ -43,3 +43,7 @@ npm run test
 ## Contributing
 
 See the [Contributing Guide](.github/CONTRIBUTING.md).
+
+## License
+
+[MIT](LICENSE)
