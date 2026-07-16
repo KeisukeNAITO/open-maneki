@@ -22,6 +22,10 @@ export function isTransactionType(value: string): value is TransactionType {
 	return (TRANSACTION_TYPES as readonly string[]).includes(value);
 }
 
+export function isCurrency(value: string): value is Currency {
+	return (CURRENCIES as readonly string[]).includes(value);
+}
+
 export function isAssetType(value: string): value is AssetType {
 	return (ASSET_TYPES as readonly string[]).includes(value);
 }
