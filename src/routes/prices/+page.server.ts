@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { prisma } from '$lib/server/db';
+import { formString } from '$lib/server/forms';
 import { validateMarketPriceForm, type MarketPriceFormInput } from '$lib/server/prices';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -27,12 +28,6 @@ export const load: PageServerLoad = async () => {
 	]);
 	return { assets, recentPrices };
 };
-
-// FormData.get() は string | File | null。ファイルは想定外なので null に落とす。
-function formString(form: FormData, name: string): string | null {
-	const value = form.get(name);
-	return typeof value === 'string' ? value : null;
-}
 
 export const actions: Actions = {
 	default: async ({ request }) => {

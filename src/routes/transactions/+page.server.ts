@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { prisma } from '$lib/server/db';
+import { formString } from '$lib/server/forms';
 import {
 	checkLedgerInvariants,
 	validateTransactionForm,
@@ -39,12 +40,6 @@ export const load: PageServerLoad = async () => {
 	]);
 	return { accounts, assets, recentTransactions };
 };
-
-// FormData.get() は string | File | null。ファイルは想定外なので null に落とす。
-function formString(form: FormData, name: string): string | null {
-	const value = form.get(name);
-	return typeof value === 'string' ? value : null;
-}
 
 // "123" のような正の整数文字列だけを ID として解釈する。
 function parseId(value: string | null): number | null {

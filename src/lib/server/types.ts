@@ -14,6 +14,10 @@ export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 export const CURRENCIES = ['JPY', 'USD'] as const;
 export type Currency = (typeof CURRENCIES)[number];
 
+export function isAccountType(value: string): value is AccountType {
+	return (ACCOUNT_TYPES as readonly string[]).includes(value);
+}
+
 export function isTransactionType(value: string): value is TransactionType {
 	return (TRANSACTION_TYPES as readonly string[]).includes(value);
 }
