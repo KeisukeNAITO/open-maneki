@@ -11,6 +11,7 @@
 
 <nav>
 	<a href={resolve('/')}>資産一覧</a>
+	<a href={resolve('/accounts')}>口座登録</a>
 	<a href={resolve('/prices')}>価格登録</a>
 	<a href={resolve('/transactions')}>取引登録</a>
 </nav>

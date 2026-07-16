@@ -4,6 +4,12 @@
 // Prisma の Int は 32bit 符号付き。超える値は保存時に落ちるため境界で弾く。
 export const INT32_MAX = 2_147_483_647;
 
+// FormData.get() は string | File | null。ファイルは想定外なので null に落とす。
+export function formString(form: FormData, name: string): string | null {
+	const value = form.get(name);
+	return typeof value === 'string' ? value : null;
+}
+
 export type DateOnlyParse =
 	{ ok: true; date: Date } | { ok: false; error: 'FORMAT' | 'NONEXISTENT' | 'FUTURE' };
 
