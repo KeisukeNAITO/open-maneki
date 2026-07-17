@@ -42,6 +42,7 @@ npm run test
 
 ## Documentation
 
+- [User Guide](docs/user-guide.md) — how to use the app. Written in Japanese, matching the app's UI language (an English version is planned alongside UI i18n)
 - [Architecture Overview](docs/architecture.md) — how the codebase is organized and why
 - [Architecture Decision Records](docs/adr/) — the reasoning behind design decisions
 
