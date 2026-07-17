@@ -40,6 +40,11 @@ npm run check
 npm run test
 ```
 
+## Documentation
+
+- [Architecture Overview](docs/architecture.md) — how the codebase is organized and why
+- [Architecture Decision Records](docs/adr/) — the reasoning behind design decisions
+
 ## Contributing
 
 See the [Contributing Guide](.github/CONTRIBUTING.md).
