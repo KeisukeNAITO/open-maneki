@@ -2,6 +2,7 @@ import { fail } from '@sveltejs/kit';
 import { prisma } from '$lib/server/db';
 import { formString } from '$lib/server/forms';
 import {
+	buildDepositSuggestion,
 	checkLedgerInvariants,
 	validateTransactionForm,
 	type TransactionFormErrors,
@@ -103,6 +104,18 @@ export const actions: Actions = {
 		}
 
 		await prisma.transaction.create({ data: value });
+
+		// 単式簿記（ADR 0006）では配当は現金に反映されないため、対応する入金の
+		// 登録を提案する。入金先は同口座 × 同通貨の CASH 資産（画面で確認・修正）。
+		if (value.type === 'DIVIDEND') {
+			const cashAssets = await prisma.asset.findMany({
+				where: { type: 'CASH', currency: value.currency },
+				select: { id: true, name: true, currency: true },
+				orderBy: { id: 'asc' }
+			});
+			return { success: true, suggestion: buildDepositSuggestion(value, cashAssets) };
+		}
+
 		return { success: true };
 	}
 };

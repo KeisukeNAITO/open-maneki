@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { TransactionInput } from './holdings';
 import {
+	buildDepositSuggestion,
 	checkLedgerInvariants,
 	validateTransactionForm,
+	type CashAssetOption,
+	type DividendForDeposit,
 	type TransactionFormInput
 } from './transactions';
 
@@ -297,5 +300,53 @@ describe('checkLedgerInvariants', () => {
 		// 導出関数の fail fast がそのまま効くことを固定しておく
 		const message = checkLedgerInvariants('CASH', [], tx('BUY', '2026-07-14', 100, 250_000));
 		expect(message).toContain('not applicable to cash');
+	});
+});
+
+describe('buildDepositSuggestion', () => {
+	const jpyDividend: DividendForDeposit = {
+		accountId: 1,
+		currency: 'JPY',
+		occurredAt: new Date('2026-07-14T00:00:00Z'),
+		amount: 5000
+	};
+	const usdDividend: DividendForDeposit = {
+		accountId: 2,
+		currency: 'USD',
+		occurredAt: new Date('2026-07-14T00:00:00Z'),
+		amount: 1234 // 12.34 ドル（税引前の額面）
+	};
+	const cashAssets: CashAssetOption[] = [
+		{ id: 12, name: '円資産', currency: 'JPY' },
+		{ id: 13, name: 'ドル資産', currency: 'USD' },
+		{ id: 14, name: '外貨MMF', currency: 'USD' }
+	];
+
+	it('口座・発生日・額面をプリフィルし、同通貨の現金資産だけを候補に出す', () => {
+		expect(buildDepositSuggestion(jpyDividend, cashAssets)).toEqual({
+			accountId: 1,
+			currency: 'JPY',
+			occurredAt: '2026-07-14',
+			amount: '5000',
+			cashAssets: [{ id: 12, name: '円資産' }]
+		});
+	});
+
+	it('USD 配当はセントをドル文字列にプリフィルし、USD の候補を複数返す', () => {
+		expect(buildDepositSuggestion(usdDividend, cashAssets)).toEqual({
+			accountId: 2,
+			currency: 'USD',
+			occurredAt: '2026-07-14',
+			amount: '12.34',
+			cashAssets: [
+				{ id: 13, name: 'ドル資産' },
+				{ id: 14, name: '外貨MMF' }
+			]
+		});
+	});
+
+	it('同通貨の現金資産が無ければ候補は空になる（画面側で作成を案内する）', () => {
+		const onlyJpy: CashAssetOption[] = [{ id: 12, name: '円資産', currency: 'JPY' }];
+		expect(buildDepositSuggestion(usdDividend, onlyJpy).cashAssets).toEqual([]);
 	});
 });

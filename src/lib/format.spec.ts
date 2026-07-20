@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatMoney, parseMoney } from './format';
+import { formatMoney, formatMoneyForInput, parseMoney } from './format';
 
 describe('parseMoney', () => {
 	it('JPY は円の整数として読む', () => {
@@ -64,5 +64,28 @@ describe('formatMoney', () => {
 
 	it('未知の通貨はエラーになる', () => {
 		expect(() => formatMoney(100, 'EUR')).toThrow('Unknown currency: EUR');
+	});
+});
+
+describe('formatMoneyForInput', () => {
+	it('JPY は円の整数をそのまま返す（記号・桁区切りなし）', () => {
+		expect(formatMoneyForInput(1_234_567, 'JPY')).toBe('1234567');
+	});
+
+	it('USD はセントをドル小数 2 桁にする（記号・桁区切りなし）', () => {
+		expect(formatMoneyForInput(189_900, 'USD')).toBe('1899.00');
+	});
+
+	it('USD は 1 ドル未満でも小数 2 桁を保つ', () => {
+		expect(formatMoneyForInput(5, 'USD')).toBe('0.05');
+	});
+
+	it('parseMoney で読み戻すと元の最小通貨単位に一致する（往復）', () => {
+		expect(parseMoney(formatMoneyForInput(189_900, 'USD'), 'USD')).toBe(189_900);
+		expect(parseMoney(formatMoneyForInput(1_234_567, 'JPY'), 'JPY')).toBe(1_234_567);
+	});
+
+	it('未知の通貨はエラーになる', () => {
+		expect(() => formatMoneyForInput(100, 'EUR')).toThrow('Unknown currency: EUR');
 	});
 });

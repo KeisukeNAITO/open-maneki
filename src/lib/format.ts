@@ -29,6 +29,26 @@ export function parseMoney(input: string, currency: string): number | null {
 }
 
 /**
+ * 最小通貨単位の金額を、金額入力欄にそのまま入れられる素の数値文字列にする
+ * （parseMoney で読み戻せる形）。formatMoney と違い通貨記号も桁区切りも付けない。
+ * フォームのプリフィル用途。対応していない通貨は formatMoney と同じくエラーにする。
+ */
+export function formatMoneyForInput(amount: number, currency: string): string {
+	switch (currency) {
+		case 'JPY':
+			return String(amount);
+		case 'USD': {
+			// 浮動小数点の除算を避け、整数のまま円・銭に分けて組み立てる
+			const dollars = Math.trunc(amount / 100);
+			const cents = amount % 100;
+			return `${dollars}.${String(cents).padStart(2, '0')}`;
+		}
+		default:
+			throw new Error(`Unknown currency: ${currency}`);
+	}
+}
+
+/**
  * 最小通貨単位の金額を表示用文字列にする。
  * JPY は円のまま桁区切り、USD はセント → ドルに換算して小数 2 桁固定。
  * 対応していない通貨は、表示の黙った桁ズレを防ぐためエラーにする。

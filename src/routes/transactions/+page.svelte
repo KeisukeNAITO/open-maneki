@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import { formatMoney } from '$lib/format';
 	import type { PageProps } from './$types';
 
@@ -118,6 +119,55 @@
 	</form>
 {/if}
 
+{#if form?.suggestion}
+	{@const suggestion = form.suggestion}
+	{@const account = data.accounts.find((a) => a.id === suggestion.accountId)}
+	<section class="suggestion">
+		<h2>対応する入金の登録</h2>
+		<p>
+			配当は単式簿記のため現金に自動反映されません。同じ口座の現金に反映するには、
+			対応する入金を登録してください。
+		</p>
+		{#if suggestion.cashAssets.length === 0}
+			<p class="error">
+				{suggestion.currency} の現金資産が未登録です。
+				<a href={resolve('/assets')}>資産登録</a>で作成してから登録してください。
+			</p>
+		{:else}
+			<form method="POST" use:enhance>
+				<input type="hidden" name="accountId" value={suggestion.accountId} />
+				<input type="hidden" name="type" value="DEPOSIT" />
+				<input type="hidden" name="occurredAt" value={suggestion.occurredAt} />
+				<p>口座: {account?.name ?? suggestion.accountId}（発生日 {suggestion.occurredAt}）</p>
+				<p>
+					<label>
+						入金先の現金資産
+						<select name="assetId">
+							{#each suggestion.cashAssets as cashAsset (cashAsset.id)}
+								<option value={cashAsset.id}>{cashAsset.name}</option>
+							{/each}
+						</select>
+					</label>
+				</p>
+				<p>
+					<label>
+						金額
+						<input type="text" name="amount" inputmode="decimal" value={suggestion.amount} />
+					</label>
+					<small>額面をプリフィルしています。源泉徴収後の実際の入金額に直してください</small>
+				</p>
+				<p>
+					<label>
+						メモ
+						<input type="text" name="note" value="" />
+					</label>
+				</p>
+				<p><button type="submit">入金を登録</button></p>
+			</form>
+		{/if}
+	</section>
+{/if}
+
 <h2>直近の取引</h2>
 {#if data.recentTransactions.length === 0}
 	<p>登録された取引はありません。</p>
@@ -156,5 +206,11 @@
 	}
 	.success {
 		color: #1b5e20;
+	}
+	.suggestion {
+		margin-top: 1.5rem;
+		padding: 0.5rem 1rem;
+		border: 1px solid #ccc;
+		border-radius: 4px;
 	}
 </style>
