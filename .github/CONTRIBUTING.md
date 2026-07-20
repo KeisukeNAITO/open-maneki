@@ -8,6 +8,7 @@ Thank you for your interest in contributing! This guide explains how to get invo
 - [How to Report a Bug](#how-to-report-a-bug)
 - [How to Request a Feature](#how-to-request-a-feature)
 - [How to Submit a Pull Request](#how-to-submit-a-pull-request)
+- [Development Workflow](#development-workflow)
 - [Use of AI Tools](#use-of-ai-tools)
 - [Development Setup](#development-setup)
 - [Coding Conventions](#coding-conventions)
@@ -51,12 +52,52 @@ We are committed to providing a welcoming and inclusive environment for everyone
 4. Run the full test suite locally and make sure it passes.
 5. Open a Pull Request against the `main` branch using the PR template.
 
-> **Note:** For large changes, please open an issue or discussion first to align on the approach before writing code.
+> **Note:** Some changes should start with an issue before any code is written —
+> see [Development Workflow](#development-workflow) below.
 
 > **Note:** Please write issues, pull requests, and commit messages in English.
 > English is not the maintainer's first language either — we are both doing our
 > best here for contributors who may join from anywhere in the world.
 > Clarity beats perfection.
+
+---
+
+## Development Workflow
+
+### When to open an issue first
+
+Open an issue (or discussion) before writing code when a change needs
+alignment on the approach:
+
+- Database schema or migration changes
+- New features (new pages, new models, new user-facing behavior)
+- Changes to project policies or conventions
+- Adding a new dependency
+
+Small changes can go straight to a pull request — no issue needed:
+
+- Typo and documentation fixes
+- Small bug fixes with an obvious cause
+- Routine chores (config tweaks, dependency updates)
+- Follow-up work already agreed in an existing issue
+
+When in doubt, open an issue. It is cheap, and it saves you from
+writing code that may not be merged.
+
+### How a change flows
+
+1. (Larger changes) Open an issue and align on the approach.
+2. Create a branch from `main` (`fix/<name>` or `feat/<name>`).
+3. Make the change, with tests. Keep the diff small — split large work
+   into multiple PRs.
+4. Open a PR. CI must pass ("Build & Test").
+5. The maintainer reviews and squash-merges. `main` is protected:
+   nobody pushes to it directly, including the maintainer.
+
+The maintainer follows the same workflow: maintainer changes also go
+through issues (when large) and PRs, so the project history shows how
+decisions are made. Decisions made outside GitHub are summarized in
+the issue or PR description.
 
 ---
 
