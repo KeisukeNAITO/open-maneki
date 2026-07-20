@@ -36,6 +36,7 @@ model Asset {
   updatedAt          DateTime      @updatedAt
   transactions       Transaction[]
   marketPrices       MarketPrice[]
+  journalEntries     JournalEntry[]
 }
 
 // 保有状況（口数・取得原価・現金残高）はテーブルに持たず、
@@ -53,6 +54,19 @@ model Transaction {
   createdAt  DateTime @default(now())
   account    Account  @relation(fields: [accountId], references: [id])
   asset      Asset    @relation(fields: [assetId], references: [id])
+}
+
+// 投資ジャーナル。「なぜ欲しいか → なぜ売買したか → 今どう評価するか」の
+// 振り返りサイクルを、同じ資産に時系列でエントリを積むことで表現する。
+// 保有・取引とは独立しており、assetId が null のエントリは
+// 銘柄に紐づかない全般メモ（相場観・所感など）。
+model JournalEntry {
+  id        Int      @id @default(autoincrement())
+  assetId   Int?
+  entryDate DateTime // 記録の対象日（日付のみ・UTC 深夜 0 時、MarketPrice.date と同じ規約）
+  body      String // 自由記述
+  createdAt DateTime @default(now())
+  asset     Asset?   @relation(fields: [assetId], references: [id])
 }
 
 model MarketPrice {
