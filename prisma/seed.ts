@@ -20,6 +20,7 @@ const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
 
 async function main(): Promise<void> {
 	// 外部キーの子 → 親の順に全消去
+	await prisma.journalEntry.deleteMany();
 	await prisma.transaction.deleteMany();
 	await prisma.marketPrice.deleteMany();
 	await prisma.asset.deleteMany();
@@ -56,6 +57,13 @@ async function main(): Promise<void> {
 			type: 'FUND',
 			currency: 'JPY'
 		}
+	});
+	// ウォッチ銘柄（取引なし）— ウォッチリストのサンプル表示用
+	const sony = await prisma.asset.create({
+		data: { name: 'ソニーグループ', type: 'STOCK_JP', symbol: '6758', currency: 'JPY' }
+	});
+	const msft = await prisma.asset.create({
+		data: { name: 'Microsoft Corp.', type: 'STOCK_US', symbol: 'MSFT', currency: 'USD' }
 	});
 
 	await prisma.transaction.createMany({
@@ -145,7 +153,31 @@ async function main(): Promise<void> {
 			{ assetId: toyota.id, date: new Date('2026-07-09'), price: 3_080 },
 			{ assetId: toyota.id, date: new Date('2026-07-10'), price: 3_120 },
 			{ assetId: apple.id, date: new Date('2026-07-10'), price: 21_834 }, // $218.34
-			{ assetId: fund.id, date: new Date('2026-07-10'), price: 27_412 } // 1 万口あたり
+			{ assetId: fund.id, date: new Date('2026-07-10'), price: 27_412 }, // 1 万口あたり
+			// ウォッチ銘柄の価格（ウォッチリストのサンプル表示用）
+			{ assetId: sony.id, date: new Date('2026-07-10'), price: 2_950 },
+			{ assetId: msft.id, date: new Date('2026-07-10'), price: 47_550 } // $475.50
+		]
+	});
+
+	await prisma.journalEntry.createMany({
+		data: [
+			{
+				assetId: sony.id,
+				entryDate: new Date('2026-07-01'),
+				body: 'エンタメ・半導体・金融と事業が多角化されている点が魅力。決算をもう少し確認してから判断したい。'
+			},
+			{
+				assetId: msft.id,
+				entryDate: new Date('2026-07-05'),
+				body: 'Azure の成長率が鈍化気味だが AI 投資の回収フェーズに入りつつある。$450 以下で買いたい。'
+			},
+			// 全般メモ（ウォッチリストには出ない）
+			{
+				assetId: null,
+				entryDate: new Date('2026-07-10'),
+				body: '米金利の先行きが不透明。当面は現金比率を維持する方針で。'
+			}
 		]
 	});
 
@@ -153,7 +185,8 @@ async function main(): Promise<void> {
 		accounts: await prisma.account.count(),
 		assets: await prisma.asset.count(),
 		transactions: await prisma.transaction.count(),
-		marketPrices: await prisma.marketPrice.count()
+		marketPrices: await prisma.marketPrice.count(),
+		journalEntries: await prisma.journalEntry.count()
 	};
 	console.log('Seeded:', counts);
 }
