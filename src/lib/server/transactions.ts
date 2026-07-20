@@ -1,4 +1,4 @@
-import { parseMoney } from '../format';
+import { formatMoneyForInput, parseMoney } from '../format';
 import { INT32_MAX, parseDateOnly } from './forms';
 import { deriveCashBalance, derivePosition, type TransactionInput } from './holdings';
 import { isTransactionType, type TransactionType } from './types';
@@ -217,4 +217,52 @@ export function checkLedgerInvariants(
 		const detail = e instanceof Error ? e.message : String(e);
 		return `台帳の整合性が崩れるため登録できません（${detail}）`;
 	}
+}
+
+// 登録済みの配当のうち、対応する入金の提案に必要な列だけ。
+export type DividendForDeposit = {
+	accountId: number;
+	currency: string;
+	occurredAt: Date;
+	amount: number;
+};
+
+// 現金資産の候補行（構造的部分型。Prisma の行をそのまま渡せる）。
+export type CashAssetOption = {
+	id: number;
+	name: string;
+	currency: string;
+};
+
+// 配当登録の成功時に画面へ渡す入金プリフィル。amount / occurredAt は
+// そのまま取引フォームの input に入れられる文字列（parseDateOnly / parseMoney が読み戻せる）。
+export type DepositSuggestion = {
+	accountId: number;
+	currency: string;
+	occurredAt: string; // YYYY-MM-DD
+	amount: string; // 額面のプリフィル。ユーザーが税引後の実額に直す
+	cashAssets: { id: number; name: string }[]; // 同通貨の候補（空なら未登録の案内を出す）
+};
+
+/**
+ * 配当登録の成功後、対応する入金（DEPOSIT）の提案データを組み立てる（DB 非依存）。
+ * 単式簿記（ADR 0006）は維持したまま、連動を登録側の提案で補うための純粋関数。
+ *
+ * 入金先は「配当と同じ口座 × 同じ通貨の CASH 資産」。候補が複数なら画面で選ばせ、
+ * ゼロなら（例: 米国株配当だがドルの現金資産が未作成）画面側で作成を案内する。
+ * 金額は配当の額面をプリフィルする（源泉徴収後の実額はユーザーが直す）。
+ */
+export function buildDepositSuggestion(
+	dividend: DividendForDeposit,
+	cashAssets: readonly CashAssetOption[]
+): DepositSuggestion {
+	const sameCurrency = cashAssets.filter((a) => a.currency === dividend.currency);
+	return {
+		accountId: dividend.accountId,
+		currency: dividend.currency,
+		// occurredAt は UTC 深夜 0 時で保存されるため、日付部分の切り出しでズレない
+		occurredAt: dividend.occurredAt.toISOString().slice(0, 10),
+		amount: formatMoneyForInput(dividend.amount, dividend.currency),
+		cashAssets: sameCurrency.map((a) => ({ id: a.id, name: a.name }))
+	};
 }
