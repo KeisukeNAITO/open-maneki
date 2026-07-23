@@ -185,16 +185,43 @@ export function validateTransactionForm(
 }
 
 /**
- * 台帳のシミュレーション検証: 「既存の取引＋登録候補」で導出を実際に実行し、
- * 例外が出たら登録を拒否する。売り越し・残高超・バックデートの矛盾
- * （過去日付で登録すると、その時点の保有 / 残高を超えるケース）をすべて
- * 導出関数自身に判定させ、不変条件の実装を 1 箇所に保つ。
- * ここを通さず不正な行が台帳に入ると、次に資産一覧を開いた時点で
+ * 台帳のシミュレーション検証の中核: ある口座 × 資産の取引集合をまるごと導出に
+ * かけ、不変条件（売り越し・残高超）が崩れて例外が出たら**その理由（導出関数の
+ * 英語メッセージ）**を返す。登録（既存＋候補）・削除（対象を除いた残り）・編集
+ * （対象を差し替えた集合）のいずれも「検証したい最終状態の集合」をここに渡すことで、
+ * 不変条件の実装を導出関数の 1 箇所に保ったまま使い回せる。
+ * この検証を通さず不正な集合が台帳に残ると、次に資産一覧を開いた時点で
  * 導出が例外を投げ、画面全体が開けなくなる。
  *
- * 候補は配列の末尾に足す: toSorted は安定ソートなので、同一日付の既存行の
- * 後に処理される。これは insert 後の読み取り順（id 昇順）と同じ並びであり、
- * 検証時と表示時で導出結果がズレない。
+ * 並び順は導出側の toSorted（安定ソート）に委ねる。同一日付は配列の並び順が
+ * 保たれ、これは id 昇順の読み取り順と一致するため、検証時と表示時でズレない。
+ *
+ * 「登録できません / 削除できません」といった文脈語を含む文面は呼び出し側で
+ * 組み立てる（同じ検証を登録・削除の両方から使うため）。
+ *
+ * @returns 違反があれば理由の文字列、なければ null
+ */
+export function simulateLedger(
+	assetType: string,
+	transactions: readonly TransactionInput[]
+): string | null {
+	try {
+		if (assetType === 'CASH') {
+			deriveCashBalance(transactions);
+		} else {
+			derivePosition(transactions);
+		}
+		return null;
+	} catch (e) {
+		// 導出関数のエラーメッセージ（英語）をそのまま返す。原因（数量・日時）が
+		// 含まれており、検証側で言い換えると将来の導出ルール変更からズレるため
+		return e instanceof Error ? e.message : String(e);
+	}
+}
+
+/**
+ * 登録時の台帳検証: 「既存の取引＋登録候補」を最終状態として simulateLedger に渡す。
+ * 候補は配列の末尾に足す（同一日付の既存行の後に処理され、insert 後の読み取り順と一致）。
  *
  * @returns 矛盾があればエラーメッセージ、なければ null
  */
@@ -203,20 +230,8 @@ export function checkLedgerInvariants(
 	existingTransactions: readonly TransactionInput[],
 	candidate: TransactionInput
 ): string | null {
-	try {
-		const simulated = [...existingTransactions, candidate];
-		if (assetType === 'CASH') {
-			deriveCashBalance(simulated);
-		} else {
-			derivePosition(simulated);
-		}
-		return null;
-	} catch (e) {
-		// 導出関数のエラーメッセージ（英語）をそのまま添える。原因（数量・日時）が
-		// 含まれており、検証側で言い換えると将来の導出ルール変更からズレるため
-		const detail = e instanceof Error ? e.message : String(e);
-		return `台帳の整合性が崩れるため登録できません（${detail}）`;
-	}
+	const detail = simulateLedger(assetType, [...existingTransactions, candidate]);
+	return detail === null ? null : `台帳の整合性が崩れるため登録できません（${detail}）`;
 }
 
 // 登録済みの配当のうち、対応する入金の提案に必要な列だけ。

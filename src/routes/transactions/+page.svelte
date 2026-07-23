@@ -37,7 +37,7 @@
 {#if data.accounts.length === 0 || data.assets.length === 0}
 	<p>取引を登録するには口座と資産が必要です。</p>
 {:else}
-	<form method="POST" use:enhance>
+	<form method="POST" action="?/create" use:enhance>
 		<p>
 			<label>
 				口座
@@ -134,7 +134,7 @@
 				<a href={resolve('/assets')}>資産登録</a>で作成してから登録してください。
 			</p>
 		{:else}
-			<form method="POST" use:enhance>
+			<form method="POST" action="?/create" use:enhance>
 				<input type="hidden" name="accountId" value={suggestion.accountId} />
 				<input type="hidden" name="type" value="DEPOSIT" />
 				<input type="hidden" name="occurredAt" value={suggestion.occurredAt} />
@@ -169,6 +169,8 @@
 {/if}
 
 <h2>直近の取引</h2>
+{#if form?.deleteError}<p class="error">{form.deleteError}</p>{/if}
+{#if form?.deleted}<p class="success">取引を削除しました。</p>{/if}
 {#if data.recentTransactions.length === 0}
 	<p>登録された取引はありません。</p>
 {:else}
@@ -182,6 +184,7 @@
 				<th>数量</th>
 				<th>金額</th>
 				<th>メモ</th>
+				<th></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -194,6 +197,18 @@
 					<td>{row.quantity === null ? '—' : row.quantity.toLocaleString('en-US')}</td>
 					<td>{formatMoney(row.amount, row.currency)}</td>
 					<td>{row.note ?? ''}</td>
+					<td>
+						<form
+							method="POST"
+							action="?/delete"
+							use:enhance={({ cancel }) => {
+								if (!confirm('この取引を削除します。よろしいですか？')) cancel();
+							}}
+						>
+							<input type="hidden" name="transactionId" value={row.id} />
+							<button type="submit">削除</button>
+						</form>
+					</td>
 				</tr>
 			{/each}
 		</tbody>
