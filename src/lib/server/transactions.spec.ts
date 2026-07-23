@@ -3,6 +3,7 @@ import type { TransactionInput } from './holdings';
 import {
 	buildDepositSuggestion,
 	checkLedgerInvariants,
+	simulateLedger,
 	validateTransactionForm,
 	type CashAssetOption,
 	type DividendForDeposit,
@@ -300,6 +301,53 @@ describe('checkLedgerInvariants', () => {
 		// 導出関数の fail fast がそのまま効くことを固定しておく
 		const message = checkLedgerInvariants('CASH', [], tx('BUY', '2026-07-14', 100, 250_000));
 		expect(message).toContain('not applicable to cash');
+	});
+});
+
+describe('simulateLedger', () => {
+	// テストヘルパー: 取引 1 行を短く書く
+	function tx(
+		type: string,
+		occurredAt: string,
+		quantity: number | null,
+		amount: number
+	): TransactionInput {
+		return { type, occurredAt: new Date(`${occurredAt}T00:00:00Z`), quantity, amount };
+	}
+
+	it('整合した集合は null を返す（削除後の残りが健全なケース）', () => {
+		// BUY 100 → SELL 40 が残る。BUY を消していないので売り越しにならない
+		const remaining = [
+			tx('BUY', '2026-07-01', 100, 250_000),
+			tx('SELL', '2026-07-14', 40, 110_000)
+		];
+		expect(simulateLedger('STOCK_JP', remaining)).toBeNull();
+	});
+
+	it('空集合は null を返す（唯一の取引を削除するケース）', () => {
+		expect(simulateLedger('STOCK_JP', [])).toBeNull();
+		expect(simulateLedger('CASH', [])).toBeNull();
+	});
+
+	it('BUY を削除すると後続 SELL が売り越しになる集合は理由を返す', () => {
+		// BUY を消した後に残るのは SELL 100 のみ → 保有 0 に対する売り越し
+		const remaining = [tx('SELL', '2026-07-14', 100, 260_000)];
+		const detail = simulateLedger('STOCK_JP', remaining);
+		expect(detail).toContain('SELL quantity 100 exceeds current holding 0');
+	});
+
+	it('DEPOSIT を削除すると後続 WITHDRAW が残高を超える集合は理由を返す', () => {
+		// DEPOSIT を消した後に残るのは WITHDRAW 50000 のみ → 残高 0 に対する超過
+		const remaining = [tx('WITHDRAW', '2026-07-14', null, 50_000)];
+		const detail = simulateLedger('CASH', remaining);
+		expect(detail).toContain('WITHDRAW amount 50000 exceeds current balance 0');
+	});
+
+	it('返す文字列は文脈語（登録 / 削除）を含まない生の理由である', () => {
+		// 文脈語の付与は呼び出し側の責務。ここでは導出の英語メッセージだけを返す
+		const detail = simulateLedger('STOCK_JP', [tx('SELL', '2026-07-14', 100, 260_000)]);
+		expect(detail).not.toContain('登録');
+		expect(detail).not.toContain('削除');
 	});
 });
 

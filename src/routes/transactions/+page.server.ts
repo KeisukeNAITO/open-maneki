@@ -4,6 +4,7 @@ import { formString } from '$lib/server/forms';
 import {
 	buildDepositSuggestion,
 	checkLedgerInvariants,
+	simulateLedger,
 	validateTransactionForm,
 	type TransactionFormErrors,
 	type TransactionFormInput
@@ -48,7 +49,7 @@ function parseId(value: string | null): number | null {
 }
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	create: async ({ request }) => {
 		const form = await request.formData();
 		const input: TransactionFormInput = {
 			accountId: formString(form, 'accountId'),
@@ -117,5 +118,37 @@ export const actions: Actions = {
 		}
 
 		return { success: true };
+	},
+
+	// 取引の削除（物理削除、ADR 0008）。削除で台帳の不変条件が崩れる場合
+	// （例: BUY を消すと後続 SELL が売り越しになる）は simulateLedger で拒否する。
+	delete: async ({ request }) => {
+		const form = await request.formData();
+		const id = parseId(formString(form, 'transactionId'));
+		if (id === null) {
+			return fail(400, { deleteError: '削除対象が不正です' });
+		}
+
+		const target = await prisma.transaction.findUnique({
+			where: { id },
+			select: { accountId: true, assetId: true, asset: { select: { type: true } } }
+		});
+		if (target === null) {
+			return fail(404, { deleteError: '対象の取引が見つかりません' });
+		}
+
+		// 削除後に残る「同じ口座 × 資産」の取引で不変条件を検証する
+		const remaining = await prisma.transaction.findMany({
+			where: { accountId: target.accountId, assetId: target.assetId, id: { not: id } },
+			select: { type: true, occurredAt: true, quantity: true, amount: true },
+			orderBy: { id: 'asc' }
+		});
+		const violation = simulateLedger(target.asset.type, remaining);
+		if (violation !== null) {
+			return fail(400, { deleteError: `台帳の整合性が崩れるため削除できません（${violation}）` });
+		}
+
+		await prisma.transaction.delete({ where: { id } });
+		return { deleted: true };
 	}
 };
