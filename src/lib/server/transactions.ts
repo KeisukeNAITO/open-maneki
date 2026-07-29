@@ -234,6 +234,40 @@ export function checkLedgerInvariants(
 	return detail === null ? null : `台帳の整合性が崩れるため登録できません（${detail}）`;
 }
 
+// 台帳の 1 グループ（同じ口座 × 資産）の行。id は並び替えのために持つ。
+export type LedgerRowWithId = TransactionInput & { id: number };
+
+/**
+ * 編集後の、ある台帳グループ（同じ口座 × 資産）の取引集合を組み立てる。
+ * 物理 UPDATE では対象の id が変わらないため、末尾 append ではなく id 昇順の
+ * 位置を保って差し替え／挿入する。これにより simulateLedger に渡す並びが
+ * 保存後の読み取り順（id 昇順）と一致し、同一日付の取引の処理順がズレない。
+ *
+ *  - groupRows から targetId の行は必ず除く（別グループへ移った場合の抜けを表す）
+ *  - candidate が非 null なら、そのグループに対象が入る（同一グループの差し替え／
+ *    別グループへの移動）ことを表し、id 昇順の位置に挿入する
+ *
+ * @param groupRows 該当グループの全行（id 昇順）
+ * @param targetId  編集対象の取引 id
+ * @param candidate このグループに属す編集後の行（属さないなら null）
+ * @returns simulateLedger に渡せる TransactionInput の配列（id 昇順）
+ */
+export function buildEditedLedger(
+	groupRows: readonly LedgerRowWithId[],
+	targetId: number,
+	candidate: LedgerRowWithId | null
+): TransactionInput[] {
+	const kept = groupRows.filter((row) => row.id !== targetId);
+	const merged = candidate === null ? kept : [...kept, candidate].toSorted((a, b) => a.id - b.id);
+	// simulateLedger は id を見ないため、導出に必要な列だけに落とす
+	return merged.map(({ type, occurredAt, quantity, amount }) => ({
+		type,
+		occurredAt,
+		quantity,
+		amount
+	}));
+}
+
 // 登録済みの配当のうち、対応する入金の提案に必要な列だけ。
 export type DividendForDeposit = {
 	accountId: number;

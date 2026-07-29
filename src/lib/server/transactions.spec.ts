@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import type { TransactionInput } from './holdings';
 import {
 	buildDepositSuggestion,
+	buildEditedLedger,
 	checkLedgerInvariants,
 	simulateLedger,
 	validateTransactionForm,
 	type CashAssetOption,
 	type DividendForDeposit,
+	type LedgerRowWithId,
 	type TransactionFormInput
 } from './transactions';
 
@@ -396,5 +398,61 @@ describe('buildDepositSuggestion', () => {
 	it('同通貨の現金資産が無ければ候補は空になる（画面側で作成を案内する）', () => {
 		const onlyJpy: CashAssetOption[] = [{ id: 12, name: '円資産', currency: 'JPY' }];
 		expect(buildDepositSuggestion(usdDividend, onlyJpy).cashAssets).toEqual([]);
+	});
+});
+
+describe('buildEditedLedger', () => {
+	// テストヘルパー: id 付きの取引 1 行を短く書く
+	function row(
+		id: number,
+		type: string,
+		occurredAt: string,
+		quantity: number | null,
+		amount: number
+	): LedgerRowWithId {
+		return { id, type, occurredAt: new Date(`${occurredAt}T00:00:00Z`), quantity, amount };
+	}
+
+	it('同一グループの差し替え: 対象を候補で置換し、simulateLedger 用に id を落とす', () => {
+		const rows = [row(1, 'BUY', '2026-07-01', 100, 250_000)];
+		const candidate = row(1, 'BUY', '2026-07-01', 100, 300_000);
+		expect(buildEditedLedger(rows, 1, candidate)).toEqual([
+			{ type: 'BUY', occurredAt: new Date('2026-07-01T00:00:00Z'), quantity: 100, amount: 300_000 }
+		]);
+	});
+
+	it('candidate が null なら対象を除いた残りを返す（別グループへ移った旧グループ側）', () => {
+		const rows = [
+			row(1, 'BUY', '2026-07-01', 100, 250_000),
+			row(2, 'SELL', '2026-07-14', 40, 110_000)
+		];
+		const result = buildEditedLedger(rows, 1, null);
+		expect(result).toEqual([
+			{ type: 'SELL', occurredAt: new Date('2026-07-14T00:00:00Z'), quantity: 40, amount: 110_000 }
+		]);
+	});
+
+	it('別グループへ移った候補は末尾ではなく id 昇順の位置に挿入される（同一日付の順序を保つ）', () => {
+		// 対象 id=2 が別グループから移ってくる。既存は id=1,5 で、いずれも同一日付。
+		// 末尾 append だと [1,5,2] になるが、保存後の読み取り順（id 昇順）は [1,2,5]。
+		const newRows = [
+			row(1, 'BUY', '2026-07-14', 100, 250_000),
+			row(5, 'SELL', '2026-07-14', 100, 260_000)
+		];
+		const candidate = row(2, 'BUY', '2026-07-14', 50, 130_000);
+		const result = buildEditedLedger(newRows, 2, candidate);
+		expect(result.map((t) => t.amount)).toEqual([250_000, 130_000, 260_000]);
+	});
+
+	it('simulateLedger と組み合わせると、同一日付の順序で売り越し判定が変わる', () => {
+		// id=2 の候補（BUY 50）を id 位置に挿入すれば、7/14 は BUY100 → BUY50 → SELL100 で健全。
+		// 末尾 append で BUY100 → SELL100 → BUY50 の順になると SELL 時点の保有が
+		// 追加購入前で判定され結果が変わりうる — 位置維持が正しいことを固定する。
+		const newRows = [
+			row(1, 'BUY', '2026-07-14', 100, 250_000),
+			row(5, 'SELL', '2026-07-14', 130, 340_000)
+		];
+		const candidate = row(2, 'BUY', '2026-07-14', 50, 130_000);
+		expect(simulateLedger('STOCK_JP', buildEditedLedger(newRows, 2, candidate))).toBeNull();
 	});
 });
