@@ -198,6 +198,7 @@
 					<td>{formatMoney(row.amount, row.currency)}</td>
 					<td>{row.note ?? ''}</td>
 					<td>
+						<a href={resolve('/transactions/[id]/edit', { id: String(row.id) })}>編集</a>
 						<form
 							method="POST"
 							action="?/delete"
