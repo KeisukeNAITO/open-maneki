@@ -15,6 +15,7 @@
 	<a href={resolve('/assets')}>資産登録</a>
 	<a href={resolve('/prices')}>価格登録</a>
 	<a href={resolve('/transactions')}>取引登録</a>
+	<a href={resolve('/dividends')}>配当予想</a>
 	<a href={resolve('/journal')}>ジャーナル</a>
 	<a href={resolve('/watchlist')}>ウォッチリスト</a>
 </nav>

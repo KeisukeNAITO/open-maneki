@@ -18,9 +18,10 @@ export type DateOnlyParse =
  * MarketPrice.date / Transaction.occurredAt の保存規約と同じ表現。
  *
  * @param today 「今日」の UTC 深夜 0 時。未来日判定に使う。呼び出し側でローカルの
- *   暦日から組み立てて渡す（関数を純粋に保ち、日付境界のテストを可能にするため）
+ *   暦日から組み立てて渡す（関数を純粋に保ち、日付境界のテストを可能にするため）。
+ *   省略した場合は未来日の上限を設けない（配当予想の権利確定日など未来日が正常なケース用）。
  */
-export function parseDateOnly(value: string | null, today: Date): DateOnlyParse {
+export function parseDateOnly(value: string | null, today?: Date): DateOnlyParse {
 	if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
 		return { ok: false, error: 'FORMAT' };
 	}
@@ -30,7 +31,7 @@ export function parseDateOnly(value: string | null, today: Date): DateOnlyParse 
 	if (Number.isNaN(candidate.getTime()) || candidate.toISOString().slice(0, 10) !== value) {
 		return { ok: false, error: 'NONEXISTENT' };
 	}
-	if (candidate.getTime() > today.getTime()) {
+	if (today !== undefined && candidate.getTime() > today.getTime()) {
 		return { ok: false, error: 'FUTURE' };
 	}
 	return { ok: true, date: candidate };

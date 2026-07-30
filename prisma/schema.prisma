@@ -37,6 +37,7 @@ model Asset {
   transactions       Transaction[]
   marketPrices       MarketPrice[]
   journalEntries     JournalEntry[]
+  dividendForecasts  DividendForecast[]
 }
 
 // 保有状況（口数・取得原価・現金残高）はテーブルに持たず、
@@ -78,4 +79,21 @@ model MarketPrice {
   asset   Asset    @relation(fields: [assetId], references: [id])
 
   @@unique([assetId, date])
+}
+
+// 配当予想。将来の権利確定日ごとの 1 株あたり配当を台帳的に積む
+// （MarketPrice と同じく「その日の事実」を 1 行で持つ）。前回〜次回権利日の
+// 経過割合による「論理的に貯まっている配当」の按分表示に使う（按分はロジック層）。
+// amountPerShare は 1 株あたり配当が最小通貨単位で小数になる（28.5 円/株・$0.245/株）ため、
+// 最小通貨単位 × 10000 のスケール整数レートで持つ（残高・受渡は Int 最小通貨単位のまま。
+// 丸めは按分総額の算出時に 1 回だけ行う）。当面は STOCK_JP / STOCK_US のみ対象。
+model DividendForecast {
+  id             Int      @id @default(autoincrement())
+  assetId        Int
+  exDate         DateTime // 権利確定日（日付のみ・UTC 深夜 0 時。MarketPrice.date と同じ規約）
+  amountPerShare Int // 1 株あたり配当（最小通貨単位 × 10000 のスケールレート）
+  createdAt      DateTime @default(now())
+  asset          Asset    @relation(fields: [assetId], references: [id])
+
+  @@unique([assetId, exDate])
 }

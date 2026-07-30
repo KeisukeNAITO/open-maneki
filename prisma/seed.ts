@@ -20,6 +20,7 @@ const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
 
 async function main(): Promise<void> {
 	// 外部キーの子 → 親の順に全消去
+	await prisma.dividendForecast.deleteMany();
 	await prisma.journalEntry.deleteMany();
 	await prisma.transaction.deleteMany();
 	await prisma.marketPrice.deleteMany();
