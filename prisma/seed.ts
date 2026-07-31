@@ -182,12 +182,25 @@ async function main(): Promise<void> {
 		]
 	});
 
+	await prisma.dividendForecast.createMany({
+		data: [
+			// トヨタ: 前回（3/31）と次回（9/30）の権利日で「貯まっている配当」が按分される。
+			// amountPerShare は最小通貨単位 × 10000 のスケールレート（28.5 円/株 = 285000）。
+			{ assetId: toyota.id, exDate: new Date('2026-03-31'), amountPerShare: 285_000 },
+			{ assetId: toyota.id, exDate: new Date('2026-09-30'), amountPerShare: 285_000 },
+			// Apple: 四半期配当。前回（5/11）と次回（8/11）。$0.26/株 = 260000。
+			{ assetId: apple.id, exDate: new Date('2026-05-11'), amountPerShare: 260_000 },
+			{ assetId: apple.id, exDate: new Date('2026-08-11'), amountPerShare: 260_000 }
+		]
+	});
+
 	const counts = {
 		accounts: await prisma.account.count(),
 		assets: await prisma.asset.count(),
 		transactions: await prisma.transaction.count(),
 		marketPrices: await prisma.marketPrice.count(),
-		journalEntries: await prisma.journalEntry.count()
+		journalEntries: await prisma.journalEntry.count(),
+		dividendForecasts: await prisma.dividendForecast.count()
 	};
 	console.log('Seeded:', counts);
 }
