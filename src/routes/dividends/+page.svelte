@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { formatDividendRate } from '$lib/format';
+	import { formatDividendRate, formatMoney } from '$lib/format';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -9,6 +9,11 @@
 	// タイムゾーン変換なしに ISO 文字列の日付部分を切り出せばよい。
 	function formatDate(date: Date): string {
 		return date.toISOString().slice(0, 10);
+	}
+
+	// 経過割合（%）。progress 要素の value/max とは別に、数値ラベルとして表示する。
+	function percent(elapsed: number, period: number): number {
+		return Math.round((elapsed / period) * 100);
 	}
 </script>
 
@@ -61,6 +66,74 @@
 	</form>
 {/if}
 
+<h2>貯まっている配当（見込み）</h2>
+<p class="note">
+	前回〜次回の権利確定日の経過割合から、次回配当のうち「論理的に貯まっている」見込み額を按分表示します。前回権利日が未登録の銘柄は起点が定まらないため按分せず、予想額のみ表示します（源泉徴収前の額面）。
+</p>
+{#if data.accrual.rows.length === 0}
+	<p>按分対象の保有株がありません。株式を保有し、次回の配当予想を登録すると表示されます。</p>
+{:else}
+	<table>
+		<thead>
+			<tr>
+				<th>口座</th>
+				<th>銘柄</th>
+				<th class="num">保有</th>
+				<th>期間（前回→次回）</th>
+				<th>経過</th>
+				<th class="num">貯まり中</th>
+				<th class="num">次回予想</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each data.accrual.rows as row (`${row.accountId}:${row.assetId}`)}
+				<tr>
+					<td>{row.accountName}</td>
+					<td>{row.assetName}{row.symbol ? `（${row.symbol}）` : ''}</td>
+					<td class="num">{row.quantity.toLocaleString('en-US')}</td>
+					<td>
+						{#if row.prevExDate}
+							{formatDate(row.prevExDate)} → {formatDate(row.nextExDate)}
+						{:else}
+							起点未登録 → {formatDate(row.nextExDate)}
+						{/if}
+					</td>
+					<td>
+						{#if row.elapsedDays !== null && row.periodDays !== null}
+							<progress value={row.elapsedDays} max={row.periodDays}></progress>
+							<small>{percent(row.elapsedDays, row.periodDays)}%</small>
+						{:else}
+							<small>—</small>
+						{/if}
+					</td>
+					<td class="num">
+						{#if row.accrued !== null}
+							{formatMoney(row.accrued, row.currency)}
+						{:else}
+							—
+						{/if}
+					</td>
+					<td class="num">{formatMoney(row.forecastTotal, row.currency)}</td>
+				</tr>
+			{/each}
+		</tbody>
+		<tfoot>
+			{#each data.accrual.totals as total (total.currency)}
+				<tr>
+					<th colspan="5">合計（{total.currency}）</th>
+					<td class="num">
+						{formatMoney(total.accrued, total.currency)}{total.hasUnstarted ? ' *' : ''}
+					</td>
+					<td></td>
+				</tr>
+			{/each}
+		</tfoot>
+	</table>
+	{#if data.accrual.totals.some((t) => t.hasUnstarted)}
+		<p class="note">* 起点未登録の銘柄は合計に含まれていません。</p>
+	{/if}
+{/if}
+
 <h2>直近の配当予想</h2>
 {#if data.recentForecasts.length === 0}
 	<p>登録された配当予想はありません。</p>
@@ -91,5 +164,12 @@
 	}
 	.success {
 		color: #1b5e20;
+	}
+	.note {
+		color: #555;
+		font-size: 0.9em;
+	}
+	.num {
+		text-align: right;
 	}
 </style>
