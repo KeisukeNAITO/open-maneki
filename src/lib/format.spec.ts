@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { formatMoney, formatMoneyForInput, parseMoney } from './format';
+import {
+	formatDividendRate,
+	formatMoney,
+	formatMoneyForInput,
+	parseDividendRate,
+	parseMoney
+} from './format';
 
 describe('parseMoney', () => {
 	it('JPY は円の整数として読む', () => {
@@ -87,5 +93,72 @@ describe('formatMoneyForInput', () => {
 
 	it('未知の通貨はエラーになる', () => {
 		expect(() => formatMoneyForInput(100, 'EUR')).toThrow('Unknown currency: EUR');
+	});
+});
+
+describe('parseDividendRate', () => {
+	it('JPY の小数（1 株あたり）を最小通貨単位 × 10000 のレートにする', () => {
+		expect(parseDividendRate('28.5', 'JPY')).toBe(285_000);
+	});
+
+	it('JPY の整数もレート化する', () => {
+		expect(parseDividendRate('30', 'JPY')).toBe(300_000);
+	});
+
+	it('JPY は小数 4 桁まで表現できる', () => {
+		expect(parseDividendRate('28.5555', 'JPY')).toBe(285_555);
+	});
+
+	it('JPY の小数 5 桁は精度超過で null になる', () => {
+		expect(parseDividendRate('28.55555', 'JPY')).toBeNull();
+	});
+
+	it('USD のドル小数をセント × 10000 のレートにする（$0.245 = 245000）', () => {
+		expect(parseDividendRate('0.245', 'USD')).toBe(245_000);
+	});
+
+	it('USD の整数はドル → セント換算してレート化する（$1 = 1000000）', () => {
+		expect(parseDividendRate('1', 'USD')).toBe(1_000_000);
+	});
+
+	it('桁区切りのカンマと前後の空白は無視する', () => {
+		expect(parseDividendRate(' 1,234.5 ', 'JPY')).toBe(12_345_000);
+	});
+
+	it('数値でない入力・負数・空文字は null になる', () => {
+		expect(parseDividendRate('abc', 'JPY')).toBeNull();
+		expect(parseDividendRate('-5', 'JPY')).toBeNull();
+		expect(parseDividendRate('', 'JPY')).toBeNull();
+	});
+
+	it('未知の通貨はエラーになる', () => {
+		expect(() => parseDividendRate('100', 'EUR')).toThrow('Unknown currency: EUR');
+	});
+});
+
+describe('formatDividendRate', () => {
+	it('JPY のレートを表示用の小数にする（末尾 0 は落とす）', () => {
+		expect(formatDividendRate(285_000, 'JPY')).toBe('28.5');
+	});
+
+	it('JPY の整数レートは小数点を付けない', () => {
+		expect(formatDividendRate(300_000, 'JPY')).toBe('30');
+	});
+
+	it('USD のレートをドル表示にする（245000 = 0.245）', () => {
+		expect(formatDividendRate(245_000, 'USD')).toBe('0.245');
+	});
+
+	it('USD の整数ドルは小数点を付けない', () => {
+		expect(formatDividendRate(1_000_000, 'USD')).toBe('1');
+	});
+
+	it('parseDividendRate で読み戻すと元のレートに一致する（往復）', () => {
+		expect(parseDividendRate(formatDividendRate(285_000, 'JPY'), 'JPY')).toBe(285_000);
+		expect(parseDividendRate(formatDividendRate(245_000, 'USD'), 'USD')).toBe(245_000);
+	});
+
+	it('未知の通貨はエラーになる', () => {
+		expect(() => formatDividendRate(100, 'EUR')).toThrow('Unknown currency: EUR');
 	});
 });
