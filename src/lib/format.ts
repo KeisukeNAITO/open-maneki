@@ -48,6 +48,17 @@ export function formatMoneyForInput(amount: number, currency: string): string {
 	}
 }
 
+/**
+ * 損益など符号が意味を持つ金額を、明示的な符号つきで表示する。
+ * 利益は先頭に '+'、損失は '-'、ゼロは符号なし（'¥0' / '$0.00'）。
+ * formatMoney は負数を '¥-1,000' と表示するが、損益では符号を額の前に
+ * 出したいので絶対値を整形して符号を付け直す。
+ */
+export function formatSignedMoney(amount: number, currency: string): string {
+	const sign = amount > 0 ? '+' : amount < 0 ? '-' : '';
+	return sign + formatMoney(Math.abs(amount), currency);
+}
+
 // 1 株あたり配当（DividendForecast.amountPerShare）は最小通貨単位 × このスケールで
 // 整数保持する。1 株あたり配当は最小通貨単位で小数になる（28.5 円/株・$0.245/株）ため、
 // レートとして精度を保ちつつ Int で持つ。丸めは按分総額の算出時に 1 回だけ行う。

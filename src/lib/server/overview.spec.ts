@@ -145,8 +145,53 @@ describe('buildOverview', () => {
 			[]
 		);
 
-		expect(result.holdings[0]).toMatchObject({ marketValue: null, priceDate: null });
-		expect(result.totals[0]).toMatchObject({ marketValue: 0, hasMissingPrice: true });
+		expect(result.holdings[0]).toMatchObject({
+			marketValue: null,
+			unrealizedGain: null,
+			priceDate: null
+		});
+		expect(result.totals[0]).toMatchObject({
+			costBasis: 0,
+			marketValue: 0,
+			hasMissingPrice: true
+		});
+	});
+
+	it('評価損益は評価額 − 取得原価で算出する（含み益・含み損）', () => {
+		const gain = buildOverview(
+			[
+				tx({
+					accountId: 1,
+					assetId: 3,
+					type: 'BUY',
+					account: taxable,
+					asset: stockJp,
+					quantity: 100,
+					amount: 50_000
+				})
+			],
+			[{ assetId: 3, date: new Date('2026-07-10'), price: 600 }]
+		);
+		// 評価額 60,000 − 取得原価 50,000 = +10,000
+		expect(gain.holdings[0]?.unrealizedGain).toBe(10_000);
+		expect(gain.totals[0]).toMatchObject({ costBasis: 50_000, marketValue: 60_000 });
+
+		const loss = buildOverview(
+			[
+				tx({
+					accountId: 1,
+					assetId: 3,
+					type: 'BUY',
+					account: taxable,
+					asset: stockJp,
+					quantity: 100,
+					amount: 50_000
+				})
+			],
+			[{ assetId: 3, date: new Date('2026-07-10'), price: 450 }]
+		);
+		// 評価額 45,000 − 取得原価 50,000 = −5,000
+		expect(loss.holdings[0]?.unrealizedGain).toBe(-5_000);
 	});
 
 	it('全量売却済みの銘柄は保有に含めない', () => {
@@ -226,8 +271,20 @@ describe('buildOverview', () => {
 
 		// JPY が先、USD が後（CURRENCIES の定義順）
 		expect(result.totals).toEqual([
-			{ currency: 'JPY', cashBalance: 100_000, marketValue: 60_000, hasMissingPrice: false },
-			{ currency: 'USD', cashBalance: 50_000, marketValue: 25_000, hasMissingPrice: false }
+			{
+				currency: 'JPY',
+				cashBalance: 100_000,
+				costBasis: 50_000,
+				marketValue: 60_000,
+				hasMissingPrice: false
+			},
+			{
+				currency: 'USD',
+				cashBalance: 50_000,
+				costBasis: 20_000,
+				marketValue: 25_000,
+				hasMissingPrice: false
+			}
 		]);
 	});
 
