@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatMoney } from '$lib/format';
+	import { formatMoney, formatSignedMoney } from '$lib/format';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -26,6 +26,7 @@
 				<th>数量</th>
 				<th>取得原価</th>
 				<th>評価額</th>
+				<th>評価損益</th>
 				<th>価格基準日</th>
 			</tr>
 		</thead>
@@ -41,6 +42,11 @@
 						>{row.marketValue === null
 							? '価格未登録'
 							: formatMoney(row.marketValue, row.currency)}</td
+					>
+					<td
+						>{row.unrealizedGain === null
+							? '—'
+							: formatSignedMoney(row.unrealizedGain, row.currency)}</td
 					>
 					<td>{row.priceDate === null ? '—' : formatDate(row.priceDate)}</td>
 				</tr>
@@ -83,6 +89,7 @@
 				<th>通貨</th>
 				<th>現金残高</th>
 				<th>保有評価額</th>
+				<th>評価損益</th>
 				<th>合計</th>
 			</tr>
 		</thead>
@@ -94,6 +101,7 @@
 					<td>
 						{formatMoney(total.marketValue, total.currency)}{total.hasMissingPrice ? ' ※' : ''}
 					</td>
+					<td>{formatSignedMoney(total.marketValue - total.costBasis, total.currency)}</td>
 					<td>{formatMoney(total.cashBalance + total.marketValue, total.currency)}</td>
 				</tr>
 			{/each}

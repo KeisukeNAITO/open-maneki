@@ -38,6 +38,7 @@ export type HoldingRow = {
 	quantity: number;
 	costBasis: number;
 	marketValue: number | null; // 価格未登録なら null
+	unrealizedGain: number | null; // 評価額 − 取得原価。価格未登録なら null
 	priceDate: Date | null; // 評価に使った価格の基準日
 };
 
@@ -55,8 +56,10 @@ export type CashRow = {
 export type CurrencyTotal = {
 	currency: string;
 	cashBalance: number;
+	costBasis: number; // 価格が判明している保有分の取得原価合計（評価損益の基準）
 	marketValue: number; // 価格が判明している保有分のみの合計
 	hasMissingPrice: boolean; // 価格未登録で合計に含められなかった保有があるか
+	// 通貨別の評価損益は marketValue − costBasis（同じ「価格判明分」の集合に揃うため一貫する）
 };
 
 export type Overview = {
@@ -125,6 +128,7 @@ export function buildOverview(
 		if (position.quantity === 0) continue;
 
 		const latest = latestPrices.get(assetId) ?? null;
+		const marketValue = deriveMarketValue(asset.type, position.quantity, latest?.price ?? null);
 		holdings.push({
 			accountId,
 			accountName: account.name,
@@ -135,7 +139,8 @@ export function buildOverview(
 			currency: asset.currency,
 			quantity: position.quantity,
 			costBasis: position.costBasis,
-			marketValue: deriveMarketValue(asset.type, position.quantity, latest?.price ?? null),
+			marketValue,
+			unrealizedGain: marketValue === null ? null : marketValue - position.costBasis,
 			priceDate: latest?.date ?? null
 		});
 	}
@@ -148,7 +153,7 @@ export function buildOverview(
 	const totalFor = (currency: string): CurrencyTotal => {
 		let total = totalsByCurrency.get(currency);
 		if (!total) {
-			total = { currency, cashBalance: 0, marketValue: 0, hasMissingPrice: false };
+			total = { currency, cashBalance: 0, costBasis: 0, marketValue: 0, hasMissingPrice: false };
 			totalsByCurrency.set(currency, total);
 		}
 		return total;
@@ -162,6 +167,7 @@ export function buildOverview(
 			total.hasMissingPrice = true;
 		} else {
 			total.marketValue += row.marketValue;
+			total.costBasis += row.costBasis;
 		}
 	}
 

@@ -3,6 +3,7 @@ import {
 	formatDividendRate,
 	formatMoney,
 	formatMoneyForInput,
+	formatSignedMoney,
 	parseDividendRate,
 	parseMoney
 } from './format';
@@ -70,6 +71,27 @@ describe('formatMoney', () => {
 
 	it('未知の通貨はエラーになる', () => {
 		expect(() => formatMoney(100, 'EUR')).toThrow('Unknown currency: EUR');
+	});
+});
+
+describe('formatSignedMoney', () => {
+	it('利益は先頭に + を付ける', () => {
+		expect(formatSignedMoney(10_000, 'JPY')).toBe('+¥10,000');
+		expect(formatSignedMoney(150, 'USD')).toBe('+$1.50');
+	});
+
+	it('損失は符号を額の前に出す（¥-… ではなく -¥…）', () => {
+		expect(formatSignedMoney(-5_000, 'JPY')).toBe('-¥5,000');
+		expect(formatSignedMoney(-150, 'USD')).toBe('-$1.50');
+	});
+
+	it('ゼロは符号なしで表示する', () => {
+		expect(formatSignedMoney(0, 'JPY')).toBe('¥0');
+		expect(formatSignedMoney(0, 'USD')).toBe('$0.00');
+	});
+
+	it('未知の通貨はエラーになる', () => {
+		expect(() => formatSignedMoney(100, 'EUR')).toThrow('Unknown currency: EUR');
 	});
 });
 
