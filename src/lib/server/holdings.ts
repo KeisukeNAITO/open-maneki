@@ -13,6 +13,7 @@ export type TransactionInput = {
 export type Position = {
 	quantity: number;
 	costBasis: number; // 取得原価の合計（平均取得単価 = costBasis / quantity）
+	realizedGain: number; // 売却で確定した累計損益（売却代金 − 取り崩した取得原価）
 };
 
 // 数量・金額に共通の検証。アサーション関数なので、呼び出し後は
@@ -32,6 +33,7 @@ export function derivePosition(transactions: readonly TransactionInput[]): Posit
 
 	let quantity = 0;
 	let costBasis = 0;
+	let realizedGain = 0;
 
 	for (const tx of ordered) {
 		if (!isTransactionType(tx.type)) {
@@ -55,6 +57,9 @@ export function derivePosition(transactions: readonly TransactionInput[]): Posit
 				// 平均単価を先に丸めず総額から按分することで、全量売却時に
 				// 取得原価が誤差なくちょうどゼロになる。
 				const costOut = Math.round((costBasis * tx.quantity) / quantity);
+				// 実現損益 = 売却代金 − 取り崩した取得原価。DIVIDEND は損益に含めない
+				// （値上がり益のみ。配当は配当可視化テーマで別建て、PR #39 の方針）。
+				realizedGain += tx.amount - costOut;
 				quantity -= tx.quantity;
 				costBasis -= costOut;
 				break;
@@ -70,7 +75,7 @@ export function derivePosition(transactions: readonly TransactionInput[]): Posit
 		}
 	}
 
-	return { quantity, costBasis };
+	return { quantity, costBasis, realizedGain };
 }
 
 /**

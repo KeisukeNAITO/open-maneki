@@ -19,14 +19,15 @@ function cash(type: 'DEPOSIT' | 'WITHDRAW', amount: number, occurredAt = '2026-0
 
 describe('derivePosition', () => {
 	it('取引がなければ保有ゼロを返す', () => {
-		expect(derivePosition([])).toEqual({ quantity: 0, costBasis: 0 });
+		expect(derivePosition([])).toEqual({ quantity: 0, costBasis: 0, realizedGain: 0 });
 	});
 
 	it('単一の BUY をそのまま口数と取得原価に反映する', () => {
 		// 100 株を受渡金額 250,000 円（手数料込み）で購入
 		expect(derivePosition([buy(100, 250_000)])).toEqual({
 			quantity: 100,
-			costBasis: 250_000
+			costBasis: 250_000,
+			realizedGain: 0
 		});
 	});
 
@@ -35,25 +36,27 @@ describe('derivePosition', () => {
 			buy(100, 250_000, '2026-01-05'),
 			buy(50, 130_000, '2026-02-10')
 		]);
-		expect(position).toEqual({ quantity: 150, costBasis: 380_000 });
+		expect(position).toEqual({ quantity: 150, costBasis: 380_000, realizedGain: 0 });
 	});
 
 	it('一部売却で取得原価を口数比で取り崩す（移動平均法）', () => {
 		// 平均取得単価 2,500 円 × 40 株 = 100,000 円分を取り崩す
+		// 実現損益 = 売却代金 120,000 − 取り崩し原価 100,000 = +20,000
 		const position = derivePosition([
 			buy(100, 250_000, '2026-01-05'),
 			sell(40, 120_000, '2026-03-01')
 		]);
-		expect(position).toEqual({ quantity: 60, costBasis: 150_000 });
+		expect(position).toEqual({ quantity: 60, costBasis: 150_000, realizedGain: 20_000 });
 	});
 
 	it('全量売却で口数も取得原価もちょうどゼロになる', () => {
 		const position = derivePosition([
 			buy(3, 100, '2026-01-05'),
-			sell(1, 40, '2026-02-01'), // 100 * 1/3 = 33.33... → 33 を取り崩し
-			sell(2, 80, '2026-03-01') // 残り 67 を全額取り崩し
+			sell(1, 40, '2026-02-01'), // 100 * 1/3 = 33.33... → 33 を取り崩し（実現 40 − 33 = 7）
+			sell(2, 80, '2026-03-01') // 残り 67 を全額取り崩し（実現 80 − 67 = 13）
 		]);
-		expect(position).toEqual({ quantity: 0, costBasis: 0 });
+		// 全量売却でも実現損益は積み上げた 7 + 13 = 20 が残る
+		expect(position).toEqual({ quantity: 0, costBasis: 0, realizedGain: 20 });
 	});
 
 	it('配列の並び順ではなく発生日時の順に処理する', () => {
@@ -62,7 +65,7 @@ describe('derivePosition', () => {
 			sell(40, 120_000, '2026-03-01'),
 			buy(100, 250_000, '2026-01-05')
 		]);
-		expect(position).toEqual({ quantity: 60, costBasis: 150_000 });
+		expect(position).toEqual({ quantity: 60, costBasis: 150_000, realizedGain: 20_000 });
 	});
 
 	it('保有口数を超える売却はエラーにする', () => {
@@ -90,13 +93,38 @@ describe('derivePosition', () => {
 			amount: 5_000
 		};
 		const position = derivePosition([buy(100, 250_000, '2026-01-05'), dividend]);
-		expect(position).toEqual({ quantity: 100, costBasis: 250_000 });
+		expect(position).toEqual({ quantity: 100, costBasis: 250_000, realizedGain: 0 });
 	});
 
 	it('現金取引（DEPOSIT）が紛れ込んだらエラーにする', () => {
 		expect(() => derivePosition([cash('DEPOSIT', 100_000)])).toThrowError(
 			/not applicable to a security position/
 		);
+	});
+
+	it('取得原価より安く売れば実現損益はマイナスになる', () => {
+		// 単価 2,500 円 × 40 株 = 100,000 円分を、売却代金 80,000 円で売る
+		const position = derivePosition([
+			buy(100, 250_000, '2026-01-05'),
+			sell(40, 80_000, '2026-03-01')
+		]);
+		expect(position.realizedGain).toBe(-20_000);
+	});
+
+	it('DIVIDEND は実現損益に含めない（値上がり益のみ）', () => {
+		const dividend: TransactionInput = {
+			type: 'DIVIDEND',
+			occurredAt: new Date('2026-04-01'),
+			quantity: null,
+			amount: 5_000
+		};
+		// 配当 5,000 を挟んでも実現損益は売却分の 20,000 のみ
+		const position = derivePosition([
+			buy(100, 250_000, '2026-01-05'),
+			dividend,
+			sell(40, 120_000, '2026-05-01')
+		]);
+		expect(position.realizedGain).toBe(20_000);
 	});
 });
 

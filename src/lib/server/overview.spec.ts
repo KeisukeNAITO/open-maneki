@@ -25,7 +25,13 @@ function tx(
 
 describe('buildOverview', () => {
 	it('空の入力から空の一覧を返す', () => {
-		expect(buildOverview([], [])).toEqual({ holdings: [], cash: [], totals: [] });
+		expect(buildOverview([], [])).toEqual({
+			holdings: [],
+			cash: [],
+			totals: [],
+			realized: [],
+			realizedTotals: []
+		});
 	});
 
 	it('CASH 資産は現金残高、証券は保有として振り分ける', () => {
@@ -223,6 +229,99 @@ describe('buildOverview', () => {
 
 		expect(result.holdings).toEqual([]);
 		expect(result.totals).toEqual([]);
+		// 保有一覧からは消えるが、実現損益には売った記録が残る（55,000 − 50,000）
+		expect(result.realized).toEqual([
+			{
+				accountId: 1,
+				accountName: '課税口座',
+				assetId: 3,
+				assetName: '日本株A',
+				assetType: 'STOCK_JP',
+				symbol: '1234',
+				currency: 'JPY',
+				realizedGain: 5_000
+			}
+		]);
+		expect(result.realizedTotals).toEqual([{ currency: 'JPY', realizedGain: 5_000 }]);
+	});
+
+	it('SELL のない銘柄は実現損益に載せない', () => {
+		const result = buildOverview(
+			[
+				tx({
+					accountId: 1,
+					assetId: 3,
+					type: 'BUY',
+					account: taxable,
+					asset: stockJp,
+					quantity: 100,
+					amount: 50_000
+				})
+			],
+			[]
+		);
+		expect(result.realized).toEqual([]);
+		expect(result.realizedTotals).toEqual([]);
+	});
+
+	it('一部売却は保有と実現損益の両方に現れ、実現損益は通貨別に合計する', () => {
+		const result = buildOverview(
+			[
+				tx({
+					accountId: 1,
+					assetId: 3,
+					type: 'BUY',
+					account: taxable,
+					asset: stockJp,
+					quantity: 100,
+					amount: 50_000,
+					occurredAt: new Date('2026-01-01')
+				}),
+				tx({
+					accountId: 1,
+					assetId: 3,
+					type: 'SELL',
+					account: taxable,
+					asset: stockJp,
+					quantity: 40,
+					amount: 30_000,
+					occurredAt: new Date('2026-02-01')
+				}),
+				tx({
+					accountId: 1,
+					assetId: 4,
+					type: 'BUY',
+					account: taxable,
+					asset: stockUs,
+					quantity: 10,
+					amount: 20_000,
+					occurredAt: new Date('2026-01-01')
+				}),
+				tx({
+					accountId: 1,
+					assetId: 4,
+					type: 'SELL',
+					account: taxable,
+					asset: stockUs,
+					quantity: 5,
+					amount: 8_000,
+					occurredAt: new Date('2026-02-01')
+				})
+			],
+			[]
+		);
+
+		// 日本株: 売却代金 30,000 − 取り崩し原価 20,000 = +10,000（保有 60 株も残る）
+		// 米国株: 売却代金 8,000 − 取り崩し原価 10,000 = −2,000
+		expect(result.holdings.map((h) => h.assetId)).toEqual([3, 4]);
+		expect(result.realized.map((r) => [r.assetId, r.realizedGain])).toEqual([
+			[3, 10_000],
+			[4, -2_000]
+		]);
+		expect(result.realizedTotals).toEqual([
+			{ currency: 'JPY', realizedGain: 10_000 },
+			{ currency: 'USD', realizedGain: -2_000 }
+		]);
 	});
 
 	it('通貨別合計は現金と評価額を通貨ごとに独立して集計する', () => {

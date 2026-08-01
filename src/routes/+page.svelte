@@ -111,3 +111,37 @@
 		<p>※ 価格未登録の銘柄は評価額の合計に含まれていません。</p>
 	{/if}
 {/if}
+
+<h2>実現損益</h2>
+{#if data.realized.length === 0}
+	<p>売却による確定損益はありません。</p>
+{:else}
+	<table>
+		<thead>
+			<tr>
+				<th>口座</th>
+				<th>銘柄</th>
+				<th>シンボル</th>
+				<th>実現損益</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each data.realized as row (`${row.accountId}:${row.assetId}`)}
+				<tr>
+					<td>{row.accountName}</td>
+					<td>{row.assetName}</td>
+					<td>{row.symbol ?? '—'}</td>
+					<td>{formatSignedMoney(row.realizedGain, row.currency)}</td>
+				</tr>
+			{/each}
+		</tbody>
+		<tfoot>
+			{#each data.realizedTotals as total (total.currency)}
+				<tr>
+					<td colspan="3">{total.currency} 合計</td>
+					<td>{formatSignedMoney(total.realizedGain, total.currency)}</td>
+				</tr>
+			{/each}
+		</tfoot>
+	</table>
+{/if}

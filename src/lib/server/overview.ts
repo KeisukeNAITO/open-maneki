@@ -42,6 +42,19 @@ export type HoldingRow = {
 	priceDate: Date | null; // 評価に使った価格の基準日
 };
 
+// 実現損益の 1 行（口座 × 資産）。売却で確定した累計損益。
+// 全量売却済み（保有ゼロ）でも SELL があれば残す点が HoldingRow と違う。
+export type RealizedRow = {
+	accountId: number;
+	accountName: string;
+	assetId: number;
+	assetName: string;
+	assetType: string;
+	symbol: string | null;
+	currency: string;
+	realizedGain: number;
+};
+
 // 現金（CASH 資産）の残高 1 行。
 export type CashRow = {
 	accountId: number;
@@ -62,10 +75,18 @@ export type CurrencyTotal = {
 	// 通貨別の評価損益は marketValue − costBasis（同じ「価格判明分」の集合に揃うため一貫する）
 };
 
+// 通貨別の実現損益合計。評価額と混ぜず独立して集計する（円換算しない方針）。
+export type RealizedTotal = {
+	currency: string;
+	realizedGain: number;
+};
+
 export type Overview = {
 	holdings: HoldingRow[];
 	cash: CashRow[];
 	totals: CurrencyTotal[];
+	realized: RealizedRow[];
+	realizedTotals: RealizedTotal[];
 };
 
 /**
@@ -73,7 +94,8 @@ export type Overview = {
  *
  * - 集計単位は口座 × 資産（同じ銘柄でも課税口座と NISA は別の行になる）
  * - 評価には資産ごとに基準日が最新の価格を使う
- * - 保有口数がゼロになった銘柄（全量売却済み）は表示しない
+ * - 保有口数がゼロになった銘柄（全量売却済み）は保有一覧に表示しない
+ * - ただし実現損益は SELL があれば全量売却済みでも残す（売った記録を消さない）
  * - 通貨別合計で価格未登録の保有は評価額に加算せず hasMissingPrice で知らせる
  */
 export function buildOverview(
@@ -103,6 +125,7 @@ export function buildOverview(
 
 	const holdings: HoldingRow[] = [];
 	const cash: CashRow[] = [];
+	const realized: RealizedRow[] = [];
 
 	for (const group of groups.values()) {
 		// groups のエントリは取引を 1 件 push する時にしか作られないため、
@@ -125,6 +148,22 @@ export function buildOverview(
 		}
 
 		const position = derivePosition(group);
+
+		// 実現損益は保有ゼロフィルタより前に集計する。SELL が一度でもあれば
+		// 全量売却済みでも行を残す（損益ゼロの建値売りも記録として残す）。
+		if (group.some((tx) => tx.type === 'SELL')) {
+			realized.push({
+				accountId,
+				accountName: account.name,
+				assetId,
+				assetName: asset.name,
+				assetType: asset.type,
+				symbol: asset.symbol,
+				currency: asset.currency,
+				realizedGain: position.realizedGain
+			});
+		}
+
 		if (position.quantity === 0) continue;
 
 		const latest = latestPrices.get(assetId) ?? null;
@@ -148,6 +187,7 @@ export function buildOverview(
 	// 表示順は口座 → 資産の登録順
 	holdings.sort((a, b) => a.accountId - b.accountId || a.assetId - b.assetId);
 	cash.sort((a, b) => a.accountId - b.accountId || a.assetId - b.assetId);
+	realized.sort((a, b) => a.accountId - b.accountId || a.assetId - b.assetId);
 
 	const totalsByCurrency = new Map<string, CurrencyTotal>();
 	const totalFor = (currency: string): CurrencyTotal => {
@@ -171,13 +211,24 @@ export function buildOverview(
 		}
 	}
 
+	const realizedByCurrency = new Map<string, RealizedTotal>();
+	for (const row of realized) {
+		let total = realizedByCurrency.get(row.currency);
+		if (!total) {
+			total = { currency: row.currency, realizedGain: 0 };
+			realizedByCurrency.set(row.currency, total);
+		}
+		total.realizedGain += row.realizedGain;
+	}
+
 	const currencyOrder = (currency: string): number => {
 		const index = (CURRENCIES as readonly string[]).indexOf(currency);
 		return index === -1 ? CURRENCIES.length : index;
 	};
-	const totals = [...totalsByCurrency.values()].sort(
-		(a, b) => currencyOrder(a.currency) - currencyOrder(b.currency)
-	);
+	const byCurrencyOrder = (a: { currency: string }, b: { currency: string }): number =>
+		currencyOrder(a.currency) - currencyOrder(b.currency);
+	const totals = [...totalsByCurrency.values()].sort(byCurrencyOrder);
+	const realizedTotals = [...realizedByCurrency.values()].sort(byCurrencyOrder);
 
-	return { holdings, cash, totals };
+	return { holdings, cash, totals, realized, realizedTotals };
 }
