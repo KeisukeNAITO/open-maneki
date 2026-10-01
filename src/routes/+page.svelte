@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { formatMoney, formatSignedMoney } from '$lib/format';
 	import type { PageProps } from './$types';
 
@@ -28,6 +29,7 @@
 				<th>評価額</th>
 				<th>評価損益</th>
 				<th>価格基準日</th>
+				<th></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -49,6 +51,12 @@
 							: formatSignedMoney(row.unrealizedGain, row.currency)}</td
 					>
 					<td>{row.priceDate === null ? '—' : formatDate(row.priceDate)}</td>
+					<td>
+						<!-- 口座 × 資産をクエリで引き継ぎ、取引登録を context モードで開く -->
+						<a href="{resolve('/transactions')}?accountId={row.accountId}&assetId={row.assetId}"
+							>取引を追加</a
+						>
+					</td>
 				</tr>
 			{/each}
 		</tbody>

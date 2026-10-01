@@ -13,7 +13,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 // routes は薄く保つ（コード構成方針 2）: ここでは取得・書き込みと
 // 検証関数の呼び出しのみを行い、検証ルールは lib/server/transactions.ts に置く。
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
 	const [accounts, assets, recentTransactions] = await Promise.all([
 		prisma.account.findMany({
 			select: { id: true, name: true, type: true },
@@ -40,7 +40,22 @@ export const load: PageServerLoad = async () => {
 			take: 20
 		})
 	]);
-	return { accounts, assets, recentTransactions };
+
+	// 資産一覧の行から「取引を追加」で遷移してきた場合、対象の口座 × 資産を
+	// クエリから解決してプリフィル文脈（context）にする。既に取得済みの一覧から
+	// 引くので追加クエリは不要。未指定・不正・存在しない id なら null＝通常フォーム。
+	// 失敗再描画でもクエリは URL に残るため context は維持される（検証差し戻しは
+	// form.values 側で復元する）。
+	const contextAccountId = parseId(url.searchParams.get('accountId'));
+	const contextAssetId = parseId(url.searchParams.get('assetId'));
+	const contextAccount =
+		contextAccountId === null ? null : (accounts.find((a) => a.id === contextAccountId) ?? null);
+	const contextAsset =
+		contextAssetId === null ? null : (assets.find((a) => a.id === contextAssetId) ?? null);
+	const context =
+		contextAccount && contextAsset ? { account: contextAccount, asset: contextAsset } : null;
+
+	return { accounts, assets, recentTransactions, context };
 };
 
 // "123" のような正の整数文字列だけを ID として解釈する。
