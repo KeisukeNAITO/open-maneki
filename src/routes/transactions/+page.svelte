@@ -20,7 +20,7 @@
 		return `${now.getFullYear()}-${month}-${day}`;
 	}
 
-	// キーは src/lib/server/types.ts の TRANSACTION_TYPES と一致させる
+	// キーは src/lib/server/types.ts の TRANSACTION_TYPES / ASSET_TYPES と一致させる
 	// （lib/server はクライアントから import できないため表示用にここへ重複定義。
 	// 未知の値はサーバ検証で弾かれるので、表示側は fallback で素通しする）
 	const typeLabels: Record<string, string> = {
@@ -30,6 +30,22 @@
 		DEPOSIT: '入金',
 		WITHDRAW: '出金'
 	};
+	const assetTypeLabels: Record<string, string> = {
+		CASH: '現金',
+		STOCK_JP: '日本株',
+		STOCK_US: '米国株',
+		FUND: '投資信託'
+	};
+
+	// 種別の選択肢。context（資産一覧から遷移）では資産種別で絞る（現金は入出金、
+	// 証券は買付・売却・配当）。通常フォームでは全種別を出し、サーバ検証に委ねる。
+	const typeOptions = $derived.by(() => {
+		const ctx = data.context;
+		if (!ctx) return Object.entries(typeLabels);
+		const allowed =
+			ctx.asset.type === 'CASH' ? ['DEPOSIT', 'WITHDRAW'] : ['BUY', 'SELL', 'DIVIDEND'];
+		return Object.entries(typeLabels).filter(([value]) => allowed.includes(value));
+	});
 </script>
 
 <h1>取引登録</h1>
@@ -38,40 +54,54 @@
 	<p>取引を登録するには口座と資産が必要です。</p>
 {:else}
 	<form method="POST" action="?/create" use:enhance>
-		<p>
-			<label>
-				口座
-				<select name="accountId">
-					<option value="">選択してください</option>
-					{#each data.accounts as account (account.id)}
-						<option value={account.id} selected={form?.values?.accountId === String(account.id)}>
-							{account.name}（{account.type}）
-						</option>
-					{/each}
-				</select>
-			</label>
-			{#if form?.errors?.accountId}<span class="error">{form.errors.accountId}</span>{/if}
-		</p>
-		<p>
-			<label>
-				資産
-				<select name="assetId">
-					<option value="">選択してください</option>
-					{#each data.assets as asset (asset.id)}
-						<option value={asset.id} selected={form?.values?.assetId === String(asset.id)}>
-							{asset.name}{asset.symbol ? `（${asset.symbol}）` : ''} / {asset.currency}
-						</option>
-					{/each}
-				</select>
-			</label>
-			{#if form?.errors?.assetId}<span class="error">{form.errors.assetId}</span>{/if}
-		</p>
+		{#if data.context}
+			<!-- 資産一覧の行から遷移: 口座・資産は自明なので表示のみ＋hidden で送る。
+			     資産名・種別・コード・通貨も資産に属する確定値なので表示に留める。 -->
+			<input type="hidden" name="accountId" value={data.context.account.id} />
+			<input type="hidden" name="assetId" value={data.context.asset.id} />
+			<p>口座: {data.context.account.name}（{data.context.account.type}）</p>
+			<p>
+				銘柄: {data.context.asset.name}{data.context.asset.symbol
+					? `（${data.context.asset.symbol}）`
+					: ''} / {data.context.asset.currency}（{assetTypeLabels[data.context.asset.type] ??
+					data.context.asset.type}）
+			</p>
+		{:else}
+			<p>
+				<label>
+					口座
+					<select name="accountId">
+						<option value="">選択してください</option>
+						{#each data.accounts as account (account.id)}
+							<option value={account.id} selected={form?.values?.accountId === String(account.id)}>
+								{account.name}（{account.type}）
+							</option>
+						{/each}
+					</select>
+				</label>
+				{#if form?.errors?.accountId}<span class="error">{form.errors.accountId}</span>{/if}
+			</p>
+			<p>
+				<label>
+					資産
+					<select name="assetId">
+						<option value="">選択してください</option>
+						{#each data.assets as asset (asset.id)}
+							<option value={asset.id} selected={form?.values?.assetId === String(asset.id)}>
+								{asset.name}{asset.symbol ? `（${asset.symbol}）` : ''} / {asset.currency}
+							</option>
+						{/each}
+					</select>
+				</label>
+				{#if form?.errors?.assetId}<span class="error">{form.errors.assetId}</span>{/if}
+			</p>
+		{/if}
 		<p>
 			<label>
 				種別
 				<select name="type">
 					<option value="">選択してください</option>
-					{#each Object.entries(typeLabels) as [value, label] (value)}
+					{#each typeOptions as [value, label] (value)}
 						<option {value} selected={form?.values?.type === value}>{label}</option>
 					{/each}
 				</select>
@@ -117,6 +147,9 @@
 		{#if form?.errors?.ledger}<p class="error">{form.errors.ledger}</p>{/if}
 		{#if form?.success}<p class="success">取引を登録しました。</p>{/if}
 	</form>
+	{#if data.context}
+		<p><a href={resolve('/transactions')}>別の口座・資産で登録する</a></p>
+	{/if}
 {/if}
 
 {#if form?.suggestion}
