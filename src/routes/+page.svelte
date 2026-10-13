@@ -73,6 +73,7 @@
 				<th>口座</th>
 				<th>通貨</th>
 				<th>残高</th>
+				<th></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -81,6 +82,13 @@
 					<td>{row.accountName}</td>
 					<td>{row.currency}</td>
 					<td>{formatMoney(row.balance, row.currency)}</td>
+					<td>
+						<!-- 口座 × 現金資産をクエリで引き継ぎ、取引登録を context モードで開く
+						     （現金は種別が入金・出金に絞られる） -->
+						<a href="{resolve('/transactions')}?accountId={row.accountId}&assetId={row.assetId}"
+							>入出金</a
+						>
+					</td>
 				</tr>
 			{/each}
 		</tbody>
