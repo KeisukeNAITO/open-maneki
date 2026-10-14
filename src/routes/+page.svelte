@@ -62,6 +62,8 @@
 		</tbody>
 	</table>
 {/if}
+<!-- まだ登録していない証券を作りながら最初の取引を登録する導線（新規・証券） -->
+<p><a href={resolve('/transactions/new-asset')}>新しい資産を追加</a></p>
 
 <h2>現金残高</h2>
 {#if data.cash.length === 0}
