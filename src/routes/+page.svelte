@@ -96,6 +96,8 @@
 		</tbody>
 	</table>
 {/if}
+<!-- まだ持っていない通貨の現金を作りながら初回入金する導線（新規・現金） -->
+<p><a href={resolve('/transactions/new-currency')}>新規通貨の追加</a></p>
 
 <h2>通貨別合計</h2>
 {#if data.totals.length === 0}
