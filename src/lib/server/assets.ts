@@ -10,7 +10,6 @@ export type AssetFormInput = {
 	type: string | null;
 	symbol: string | null;
 	currency: string | null;
-	shareholderBenefit: string | null;
 };
 
 // 重複判定に必要な列だけを持つ構造的部分型（Prisma の行をそのまま渡せる）。
@@ -23,7 +22,6 @@ export type AssetFormErrors = {
 	type?: string;
 	symbol?: string;
 	currency?: string;
-	shareholderBenefit?: string;
 };
 
 // 検証済みの値。そのまま prisma.asset.create の data に渡せる形。
@@ -32,7 +30,6 @@ export type ValidatedAsset = {
 	type: AssetType;
 	symbol: string | null;
 	currency: Currency;
-	shareholderBenefit: string | null;
 };
 
 export type AssetValidation =
@@ -50,8 +47,6 @@ export type AssetValidation =
  * - 通貨は上場市場から決まる種別では強制（STOCK_JP → JPY / STOCK_US → USD）。
  *   取引フォームが「通貨は資産から採用」する前提を、資産の入口で守る
  * - symbol は CASH に拒否（schema の「現金は null」を検証で保証）、他は任意
- * - shareholderBenefit（株主優待メモ）は STOCK_JP のみ。他種別への入力は
- *   黙って捨てずに明示的に拒否する（取引フォームの quantity と同じ原則）
  */
 export function validateAssetForm(
 	input: AssetFormInput,
@@ -90,13 +85,6 @@ export function validateAssetForm(
 	}
 	const symbol = trimmedSymbol === '' ? null : trimmedSymbol;
 
-	const trimmedBenefit = (input.shareholderBenefit ?? '').trim();
-	if (type !== null && type !== 'STOCK_JP' && trimmedBenefit !== '') {
-		// 種別が不明な間は判定しない（type 側のエラーで足りる）
-		errors.shareholderBenefit = '株主優待メモは日本株のみ登録できます';
-	}
-	const shareholderBenefit = trimmedBenefit === '' ? null : trimmedBenefit;
-
 	if (Object.keys(errors).length > 0) {
 		return { ok: false, errors };
 	}
@@ -104,5 +92,5 @@ export function validateAssetForm(
 	if (type === null || currency === null) {
 		throw new Error('validateAssetForm: passed validation but values are missing (bug)');
 	}
-	return { ok: true, value: { name, type, symbol, currency, shareholderBenefit } };
+	return { ok: true, value: { name, type, symbol, currency } };
 }

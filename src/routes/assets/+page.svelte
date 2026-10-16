@@ -62,15 +62,6 @@
 		<small>日本株は JPY、米国株は USD</small>
 		{#if form?.errors?.currency}<span class="error">{form.errors.currency}</span>{/if}
 	</p>
-	<p>
-		<label>
-			株主優待メモ
-			<input type="text" name="shareholderBenefit" value={form?.values?.shareholderBenefit ?? ''} />
-		</label>
-		<small>日本株のみ（任意）</small>
-		{#if form?.errors?.shareholderBenefit}<span class="error">{form.errors.shareholderBenefit}</span
-			>{/if}
-	</p>
 	<p><button type="submit">登録</button></p>
 	{#if form?.success}<p class="success">資産を登録しました。</p>{/if}
 </form>
@@ -86,7 +77,6 @@
 				<th>種別</th>
 				<th>コード</th>
 				<th>通貨</th>
-				<th>株主優待メモ</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -96,7 +86,6 @@
 					<td>{typeLabels[row.type] ?? row.type}</td>
 					<td>{row.symbol ?? ''}</td>
 					<td>{row.currency}</td>
-					<td>{row.shareholderBenefit ?? ''}</td>
 				</tr>
 			{/each}
 		</tbody>

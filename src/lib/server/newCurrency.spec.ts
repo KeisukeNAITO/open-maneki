@@ -36,8 +36,7 @@ describe('validateNewCurrencyDeposit', () => {
 				name: 'USD 現金',
 				type: 'CASH',
 				symbol: null,
-				currency: 'USD',
-				shareholderBenefit: null
+				currency: 'USD'
 			},
 			transaction: {
 				accountId: 1,

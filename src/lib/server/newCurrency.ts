@@ -133,8 +133,7 @@ export function validateNewCurrencyDeposit(
 			name: cashAssetName(currency),
 			type: 'CASH',
 			symbol: null,
-			currency,
-			shareholderBenefit: null
+			currency
 		},
 		transaction: txResult.value
 	};

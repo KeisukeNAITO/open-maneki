@@ -13,7 +13,7 @@
 		return `${now.getFullYear()}-${month}-${day}`;
 	}
 
-	// 資産種別で通貨・優待メモの出し分けを駆動するためクライアント状態を持つ
+	// 資産種別で通貨の出し分けを駆動するためクライアント状態を持つ
 	// （専用ルートなので登録ページにクライアント二状態を持ち込む懸念はない）。
 	// 失敗再送時は form.values から初期値を復元する（enhance では再マウントされず
 	// ユーザーの選択が保持され、非 JS では完全リロードで初期値が入る）。初期値の
@@ -26,7 +26,6 @@
 	const fixedCurrency = $derived(
 		assetType === 'STOCK_JP' ? 'JPY' : assetType === 'STOCK_US' ? 'USD' : null
 	);
-	const showBenefit = $derived(assetType === 'STOCK_JP');
 </script>
 
 <h1>新しい資産を追加して取引を登録</h1>
@@ -79,22 +78,6 @@
 			{/if}
 			{#if form?.assetErrors?.currency}<span class="error">{form.assetErrors.currency}</span>{/if}
 		</p>
-		{#if showBenefit}
-			<p>
-				<label>
-					株主優待メモ
-					<input
-						type="text"
-						name="shareholderBenefit"
-						value={form?.values?.asset?.shareholderBenefit ?? ''}
-					/>
-				</label>
-				<small>日本株のみ（任意）</small>
-				{#if form?.assetErrors?.shareholderBenefit}<span class="error"
-						>{form.assetErrors.shareholderBenefit}</span
-					>{/if}
-			</p>
-		{/if}
 
 		<h2>最初の取引</h2>
 		<p>
