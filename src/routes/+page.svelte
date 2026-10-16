@@ -147,6 +147,8 @@
 		</tbody>
 	</table>
 {/if}
+<!-- 取引ゼロで資産だけ作る = ウォッチ銘柄の登録。既存の資産登録ページを再利用する -->
+<p><a href={resolve('/assets')}>ウォッチ銘柄を追加</a></p>
 
 <h2>通貨別合計</h2>
 {#if data.totals.length === 0}
