@@ -204,10 +204,14 @@
 					<td>{formatSignedMoney(row.realizedGain, row.currency)}</td>
 					<td>
 						<!-- 全量売却で保有行が消えた銘柄を、口座 × 資産を引き継いで
-						     買い直す導線（保有行・現金行と同型の context モード） -->
-						<a href="{resolve('/transactions')}?accountId={row.accountId}&assetId={row.assetId}"
-							>取引を追加</a
-						>
+						     買い直す導線（保有行・現金行と同型の context モード）。
+						     部分売却でまだ保有中なら保有行側にリンクがあるため、
+						     重複を避けてここでは出さない。 -->
+						{#if !data.holdings.some((h) => h.accountId === row.accountId && h.assetId === row.assetId)}
+							<a href="{resolve('/transactions')}?accountId={row.accountId}&assetId={row.assetId}"
+								>取引を追加</a
+							>
+						{/if}
 					</td>
 				</tr>
 			{/each}
