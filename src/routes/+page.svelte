@@ -10,6 +10,12 @@
 	function formatDate(date: Date): string {
 		return date.toISOString().slice(0, 10);
 	}
+
+	// ウォッチ（未保有）銘柄のジャーナル本文は先頭 80 文字だけ見せる。
+	const EXCERPT_LENGTH = 80;
+	function excerpt(body: string): string {
+		return body.length <= EXCERPT_LENGTH ? body : body.slice(0, EXCERPT_LENGTH) + '…';
+	}
 </script>
 
 <h1>資産一覧</h1>
@@ -99,6 +105,49 @@
 <!-- まだ持っていない通貨の現金を作りながら初回入金する導線（新規・現金） -->
 <p><a href={resolve('/transactions/new-currency')}>新規通貨の追加</a></p>
 
+<h2>未保有（ウォッチ）</h2>
+<!-- 登録済みだが取引 0 件の銘柄。取引を 1 件つけると保有資産側に移る。
+     かつての /watchlist ページを資産一覧のセクションとして統合したもの。 -->
+{#if data.watch.length === 0}
+	<p>ウォッチ中の銘柄はありません。</p>
+{:else}
+	<table>
+		<thead>
+			<tr>
+				<th>銘柄</th>
+				<th>最新価格</th>
+				<th>最新ジャーナル</th>
+			</tr>
+		</thead>
+		<tbody>
+			{#each data.watch as row (row.assetId)}
+				<tr>
+					<td>
+						{row.assetName}{row.symbol ? `（${row.symbol}）` : ''}
+						<span class="muted">/ {row.currency}</span>
+					</td>
+					<td>
+						{#if row.price !== null && row.priceDate !== null}
+							{formatMoney(row.price, row.currency)}
+							<span class="muted">（{formatDate(row.priceDate)}）</span>
+						{:else}
+							<span class="muted">価格未登録</span>
+						{/if}
+					</td>
+					<td>
+						{#if row.latestEntry !== null}
+							<span class="muted">{formatDate(row.latestEntry.entryDate)}</span>
+							{excerpt(row.latestEntry.body)}
+						{:else}
+							<span class="muted">—</span>
+						{/if}
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+{/if}
+
 <h2>通貨別合計</h2>
 {#if data.totals.length === 0}
 	<p>集計対象がありません。</p>
@@ -165,3 +214,10 @@
 		</tfoot>
 	</table>
 {/if}
+
+<style>
+	.muted {
+		color: #666;
+		font-size: 0.9em;
+	}
+</style>

@@ -20,7 +20,6 @@
 			<li><a href={resolve('/transactions')}>取引登録</a></li>
 			<li><a href={resolve('/dividends')}>配当予想</a></li>
 			<li><a href={resolve('/journal')}>ジャーナル</a></li>
-			<li><a href={resolve('/watchlist')}>ウォッチリスト</a></li>
 		</ul>
 	</nav>
 </header>
