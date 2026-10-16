@@ -31,7 +31,6 @@ model Asset {
   type               String // "CASH" | "STOCK_JP" | "STOCK_US" | "FUND"
   symbol             String? // 証券コード・ティッカー（現金は null）
   currency           String // "JPY" | "USD"
-  shareholderBenefit String? // 株主優待メモ（自由記述）
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
   transactions       Transaction[]

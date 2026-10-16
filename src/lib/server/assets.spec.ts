@@ -10,34 +10,31 @@ function input(overrides: Partial<AssetFormInput> = {}): AssetFormInput {
 		type: 'STOCK_JP',
 		symbol: '7974',
 		currency: 'JPY',
-		shareholderBenefit: null,
 		...overrides
 	};
 }
 
 describe('validateAssetForm', () => {
 	it('正常系: 日本株の全項目がそのまま検証済みの値になる', () => {
-		const result = validateAssetForm(input({ shareholderBenefit: '自社ゲーム割引' }), existing);
+		const result = validateAssetForm(input(), existing);
 		expect(result).toEqual({
 			ok: true,
 			value: {
 				name: '任天堂',
 				type: 'STOCK_JP',
 				symbol: '7974',
-				currency: 'JPY',
-				shareholderBenefit: '自社ゲーム割引'
+				currency: 'JPY'
 			}
 		});
 	});
 
-	it('正常系: 現金は symbol・優待メモなしで登録でき、空文字は null になる', () => {
+	it('正常系: 現金は symbol なしで登録でき、空文字は null になる', () => {
 		const result = validateAssetForm(
 			input({
 				name: 'USD 現金',
 				type: 'CASH',
 				symbol: '',
-				currency: 'USD',
-				shareholderBenefit: ''
+				currency: 'USD'
 			}),
 			existing
 		);
@@ -47,20 +44,16 @@ describe('validateAssetForm', () => {
 				name: 'USD 現金',
 				type: 'CASH',
 				symbol: null,
-				currency: 'USD',
-				shareholderBenefit: null
+				currency: 'USD'
 			}
 		});
 	});
 
-	it('名前・symbol・優待メモの前後の空白は取り除いて登録する', () => {
-		const result = validateAssetForm(
-			input({ name: '  任天堂  ', symbol: ' 7974 ', shareholderBenefit: ' メモ ' }),
-			existing
-		);
+	it('名前・symbol の前後の空白は取り除いて登録する', () => {
+		const result = validateAssetForm(input({ name: '  任天堂  ', symbol: ' 7974 ' }), existing);
 		expect(result).toMatchObject({
 			ok: true,
-			value: { name: '任天堂', symbol: '7974', shareholderBenefit: 'メモ' }
+			value: { name: '任天堂', symbol: '7974' }
 		});
 	});
 
@@ -148,39 +141,8 @@ describe('validateAssetForm', () => {
 		expect(result).toMatchObject({ ok: true, value: { symbol: null } });
 	});
 
-	it('日本株以外に優待メモを入力するとエラーになる', () => {
-		for (const type of ['STOCK_US', 'FUND', 'CASH'] as const) {
-			const result = validateAssetForm(
-				input({
-					name: `資産 ${type}`,
-					type,
-					symbol: null,
-					currency: type === 'STOCK_US' ? 'USD' : 'JPY',
-					shareholderBenefit: 'メモ'
-				}),
-				existing
-			);
-			expect(result).toMatchObject({
-				ok: false,
-				errors: { shareholderBenefit: '株主優待メモは日本株のみ登録できます' }
-			});
-		}
-	});
-
-	it('種別が不明な間は優待メモの判定をしない（type 側のエラーで足りる）', () => {
-		const result = validateAssetForm(input({ type: null, shareholderBenefit: 'メモ' }), existing);
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.type).toBeDefined();
-			expect(result.errors.shareholderBenefit).toBeUndefined();
-		}
-	});
-
 	it('複数項目のエラーは一括で返す（1 件目で打ち切らない）', () => {
-		const result = validateAssetForm(
-			{ name: '', type: '', symbol: null, currency: '', shareholderBenefit: null },
-			existing
-		);
+		const result = validateAssetForm({ name: '', type: '', symbol: null, currency: '' }, existing);
 		expect(result.ok).toBe(false);
 		if (!result.ok) {
 			expect(Object.keys(result.errors).sort()).toEqual(['currency', 'name', 'type']);

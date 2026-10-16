@@ -35,8 +35,7 @@ export const actions: Actions = {
 			name: formString(form, 'name'),
 			type: formString(form, 'assetType'),
 			symbol: formString(form, 'symbol'),
-			currency: formString(form, 'currency'),
-			shareholderBenefit: formString(form, 'shareholderBenefit')
+			currency: formString(form, 'currency')
 		};
 		const txInput: TransactionFormInput = {
 			accountId: formString(form, 'accountId'),

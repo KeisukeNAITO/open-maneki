@@ -13,8 +13,7 @@ export const load: PageServerLoad = async () => {
 			name: true,
 			type: true,
 			symbol: true,
-			currency: true,
-			shareholderBenefit: true
+			currency: true
 		},
 		orderBy: { id: 'asc' }
 	});
@@ -28,8 +27,7 @@ export const actions: Actions = {
 			name: formString(form, 'name'),
 			type: formString(form, 'type'),
 			symbol: formString(form, 'symbol'),
-			currency: formString(form, 'currency'),
-			shareholderBenefit: formString(form, 'shareholderBenefit')
+			currency: formString(form, 'currency')
 		};
 
 		// 重複判定用に既存資産を全件渡す（シングルユーザーの銘柄数なら全件でも軽い）

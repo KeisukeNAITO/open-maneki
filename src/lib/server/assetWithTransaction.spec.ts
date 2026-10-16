@@ -16,7 +16,6 @@ function assetInput(overrides: Partial<AssetFormInput> = {}): AssetFormInput {
 		type: 'STOCK_JP',
 		symbol: '7974',
 		currency: 'JPY',
-		shareholderBenefit: null,
 		...overrides
 	};
 }
@@ -43,8 +42,7 @@ describe('validateNewAssetTransaction', () => {
 				name: '任天堂',
 				type: 'STOCK_JP',
 				symbol: '7974',
-				currency: 'JPY',
-				shareholderBenefit: null
+				currency: 'JPY'
 			},
 			transaction: {
 				accountId: 1,

@@ -45,8 +45,7 @@ async function main(): Promise<void> {
 			name: 'トヨタ自動車',
 			type: 'STOCK_JP',
 			symbol: '7203',
-			currency: 'JPY',
-			shareholderBenefit: 'なし'
+			currency: 'JPY'
 		}
 	});
 	const apple = await prisma.asset.create({
