@@ -55,11 +55,33 @@
 {:else}
 	<form method="POST" action="?/create" use:enhance>
 		{#if data.context}
-			<!-- 資産一覧の行から遷移: 口座・資産は自明なので表示のみ＋hidden で送る。
-			     資産名・種別・コード・通貨も資産に属する確定値なので表示に留める。 -->
-			<input type="hidden" name="accountId" value={data.context.account.id} />
+			<!-- 資産一覧の行から遷移: 資産は確定なので表示のみ＋hidden で送る
+			     （資産名・種別・コード・通貨も資産に属する確定値なので表示に留める）。
+			     口座は保有・現金行からの遷移なら確定だが、未保有（ウォッチ）銘柄は
+			     口座未定なので select で選ばせる。 -->
+			{#if data.context.account}
+				<input type="hidden" name="accountId" value={data.context.account.id} />
+				<p>口座: {data.context.account.name}（{data.context.account.type}）</p>
+			{:else}
+				<p>
+					<label>
+						口座
+						<select name="accountId">
+							<option value="">選択してください</option>
+							{#each data.accounts as account (account.id)}
+								<option
+									value={account.id}
+									selected={form?.values?.accountId === String(account.id)}
+								>
+									{account.name}（{account.type}）
+								</option>
+							{/each}
+						</select>
+					</label>
+					{#if form?.errors?.accountId}<span class="error">{form.errors.accountId}</span>{/if}
+				</p>
+			{/if}
 			<input type="hidden" name="assetId" value={data.context.asset.id} />
-			<p>口座: {data.context.account.name}（{data.context.account.type}）</p>
 			<p>
 				銘柄: {data.context.asset.name}{data.context.asset.symbol
 					? `（${data.context.asset.symbol}）`
