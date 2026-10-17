@@ -122,6 +122,7 @@
 				<th>銘柄</th>
 				<th>最新価格</th>
 				<th>最新ジャーナル</th>
+				<th></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -146,6 +147,11 @@
 						{:else}
 							<span class="muted">—</span>
 						{/if}
+					</td>
+					<td>
+						<!-- ウォッチ銘柄（取引ゼロ）に最初の取引をつける導線。口座が未定なので
+						     資産だけを context に引き継ぎ、取引ページ側で口座を選ばせる。 -->
+						<a href="{resolve('/transactions')}?assetId={row.assetId}">取引を追加</a>
 					</td>
 				</tr>
 			{/each}

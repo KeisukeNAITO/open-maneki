@@ -41,19 +41,22 @@ export const load: PageServerLoad = async ({ url }) => {
 		})
 	]);
 
-	// 資産一覧の行から「取引を追加」で遷移してきた場合、対象の口座 × 資産を
+	// 資産一覧の行から「取引を追加」で遷移してきた場合、対象の資産（と任意で口座）を
 	// クエリから解決してプリフィル文脈（context）にする。既に取得済みの一覧から
 	// 引くので追加クエリは不要。未指定・不正・存在しない id なら null＝通常フォーム。
 	// 失敗再描画でもクエリは URL に残るため context は維持される（検証差し戻しは
 	// form.values 側で復元する）。
+	//
+	// 資産が context のアンカー。口座は任意: 保有・現金行からの遷移は口座も確定する
+	// ので両方ロックするが、未保有（ウォッチ）銘柄は口座未定なので資産だけロックし、
+	// 口座はフォームで選ばせる（account === null）。
 	const contextAccountId = parseId(url.searchParams.get('accountId'));
 	const contextAssetId = parseId(url.searchParams.get('assetId'));
 	const contextAccount =
 		contextAccountId === null ? null : (accounts.find((a) => a.id === contextAccountId) ?? null);
 	const contextAsset =
 		contextAssetId === null ? null : (assets.find((a) => a.id === contextAssetId) ?? null);
-	const context =
-		contextAccount && contextAsset ? { account: contextAccount, asset: contextAsset } : null;
+	const context = contextAsset ? { account: contextAccount, asset: contextAsset } : null;
 
 	return { accounts, assets, recentTransactions, context };
 };
