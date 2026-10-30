@@ -27,6 +27,8 @@ describe('buildWatchlist', () => {
 		const rows = run({ assets: [asset(1)] });
 		expect(rows).toHaveLength(1);
 		expect(rows[0]?.assetId).toBe(1);
+		// 資産種別も引き継ぐ（資産一覧で配当予想リンクを株式に絞るのに使う）
+		expect(rows[0]?.assetType).toBe('STOCK_JP');
 	});
 
 	it('CASH 資産は除外される', () => {

@@ -10,7 +10,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 // routes は薄く保つ（コード構成方針 2）: ここでは取得・書き込みと
 // 検証・集約関数の呼び出しのみを行い、ロジックは lib/server/ に置く。
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
 	const [assets, recentForecasts, transactions, forecasts] = await Promise.all([
 		// 配当予想を登録できるのは株式のみ（投資信託・現金は当面対象外）
 		prisma.asset.findMany({
@@ -53,8 +53,22 @@ export const load: PageServerLoad = async () => {
 	const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 	const accrual = buildAccruedDividend(transactions, forecasts, today);
 
-	return { assets, recentForecasts, accrual };
+	// 資産一覧の株式行から「配当予想」で遷移してきた場合、対象銘柄をクエリから解決して
+	// プリフィル文脈（context）にする。配当予想は資産単位（口座に紐づかない）ので
+	// アンカーは資産だけ。assets は株式のみに絞ってあるため、株式以外の id は
+	// 解決されず null＝通常フォームになる（防御的）。未指定・不正・存在しない id も
+	// 同じく null。失敗再描画でもクエリは URL に残るため context は維持される。
+	const contextAssetId = parseId(url.searchParams.get('assetId'));
+	const context =
+		contextAssetId === null ? null : (assets.find((a) => a.id === contextAssetId) ?? null);
+
+	return { assets, recentForecasts, accrual, context };
 };
+
+// "123" のような正の整数文字列だけを ID として解釈する。
+function parseId(value: string | null): number | null {
+	return value && /^\d+$/.test(value) ? Number(value) : null;
+}
 
 export const actions: Actions = {
 	default: async ({ request }) => {

@@ -27,6 +27,7 @@ export type WatchlistJournalEntry = {
 export type WatchlistRow = {
 	assetId: number;
 	assetName: string;
+	assetType: string;
 	symbol: string | null;
 	currency: string;
 	price: number | null; // 最新価格（未登録なら null）。投資信託は 1 万口あたり
@@ -81,6 +82,7 @@ export function buildWatchlist(
 		rows.push({
 			assetId: asset.id,
 			assetName: asset.name,
+			assetType: asset.type,
 			symbol: asset.symbol,
 			currency: asset.currency,
 			price: latestPrice?.price ?? null,
