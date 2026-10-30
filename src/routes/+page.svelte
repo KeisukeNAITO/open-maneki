@@ -16,6 +16,12 @@
 	function excerpt(body: string): string {
 		return body.length <= EXCERPT_LENGTH ? body : body.slice(0, EXCERPT_LENGTH) + '…';
 	}
+
+	// 配当予想は株式（日本株・米国株）のみ対象。この行から配当予想リンクを
+	// 出すかの判定に使う（投資信託・現金には予想を登録しない）。
+	function isStock(type: string): boolean {
+		return type === 'STOCK_JP' || type === 'STOCK_US';
+	}
 </script>
 
 <h1>資産一覧</h1>
@@ -69,6 +75,10 @@
 						>
 						<!-- 資産をクエリで引き継ぎ、価格登録を context モードで開く（価格は資産単位） -->
 						<a href="{resolve('/prices')}?assetId={row.assetId}">価格更新</a>
+						{#if isStock(row.assetType)}
+							<!-- 株式のみ配当予想を登録できる。資産をクエリで引き継ぐ -->
+							<a href="{resolve('/dividends')}?assetId={row.assetId}">配当予想</a>
+						{/if}
 					</td>
 				</tr>
 			{/each}
@@ -156,6 +166,10 @@
 						<a href="{resolve('/transactions')}?assetId={row.assetId}">取引を追加</a>
 						<!-- 資産をクエリで引き継ぎ、価格登録を context モードで開く（価格は資産単位） -->
 						<a href="{resolve('/prices')}?assetId={row.assetId}">価格更新</a>
+						{#if isStock(row.assetType)}
+							<!-- 株式のみ配当予想を登録できる。資産をクエリで引き継ぐ -->
+							<a href="{resolve('/dividends')}?assetId={row.assetId}">配当予想</a>
+						{/if}
 					</td>
 				</tr>
 			{/each}

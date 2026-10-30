@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import { formatDividendRate, formatMoney } from '$lib/format';
 	import type { PageProps } from './$types';
 
@@ -23,20 +24,30 @@
 	<p>配当予想を登録できる株式がありません。先に資産を登録してください。</p>
 {:else}
 	<form method="POST" use:enhance>
-		<p>
-			<label>
-				銘柄
-				<select name="assetId">
-					<option value="">選択してください</option>
-					{#each data.assets as asset (asset.id)}
-						<option value={asset.id} selected={form?.values?.assetId === String(asset.id)}>
-							{asset.name}{asset.symbol ? `（${asset.symbol}）` : ''} / {asset.currency}
-						</option>
-					{/each}
-				</select>
-			</label>
-			{#if form?.errors?.assetId}<span class="error">{form.errors.assetId}</span>{/if}
-		</p>
+		{#if data.context}
+			<!-- 資産一覧の株式行から遷移: 銘柄は確定なので表示のみ＋hidden で送る。
+			     配当予想は資産単位（口座に紐づかない）のでアンカーは資産だけ。 -->
+			<input type="hidden" name="assetId" value={data.context.id} />
+			<p>
+				銘柄: {data.context.name}{data.context.symbol ? `（${data.context.symbol}）` : ''} / {data
+					.context.currency}
+			</p>
+		{:else}
+			<p>
+				<label>
+					銘柄
+					<select name="assetId">
+						<option value="">選択してください</option>
+						{#each data.assets as asset (asset.id)}
+							<option value={asset.id} selected={form?.values?.assetId === String(asset.id)}>
+								{asset.name}{asset.symbol ? `（${asset.symbol}）` : ''} / {asset.currency}
+							</option>
+						{/each}
+					</select>
+				</label>
+				{#if form?.errors?.assetId}<span class="error">{form.errors.assetId}</span>{/if}
+			</p>
+		{/if}
 		<p>
 			<label>
 				権利確定日
@@ -64,6 +75,9 @@
 			</p>
 		{/if}
 	</form>
+	{#if data.context}
+		<p><a href={resolve('/dividends')}>別の銘柄で登録する</a></p>
+	{/if}
 {/if}
 
 <h2>貯まっている配当（見込み）</h2>
