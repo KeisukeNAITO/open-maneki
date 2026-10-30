@@ -67,6 +67,8 @@
 						<a href="{resolve('/transactions')}?accountId={row.accountId}&assetId={row.assetId}"
 							>取引を追加</a
 						>
+						<!-- 資産をクエリで引き継ぎ、価格登録を context モードで開く（価格は資産単位） -->
+						<a href="{resolve('/prices')}?assetId={row.assetId}">価格更新</a>
 					</td>
 				</tr>
 			{/each}
@@ -152,6 +154,8 @@
 						<!-- ウォッチ銘柄（取引ゼロ）に最初の取引をつける導線。口座が未定なので
 						     資産だけを context に引き継ぎ、取引ページ側で口座を選ばせる。 -->
 						<a href="{resolve('/transactions')}?assetId={row.assetId}">取引を追加</a>
+						<!-- 資産をクエリで引き継ぎ、価格登録を context モードで開く（価格は資産単位） -->
+						<a href="{resolve('/prices')}?assetId={row.assetId}">価格更新</a>
 					</td>
 				</tr>
 			{/each}
