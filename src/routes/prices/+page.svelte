@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import { formatMoney } from '$lib/format';
 	import type { PageProps } from './$types';
 
@@ -26,20 +27,30 @@
 	<p>価格を登録できる資産がありません。</p>
 {:else}
 	<form method="POST" use:enhance>
-		<p>
-			<label>
-				資産
-				<select name="assetId">
-					<option value="">選択してください</option>
-					{#each data.assets as asset (asset.id)}
-						<option value={asset.id} selected={form?.values?.assetId === String(asset.id)}>
-							{asset.name}{asset.symbol ? `（${asset.symbol}）` : ''} / {asset.currency}
-						</option>
-					{/each}
-				</select>
-			</label>
-			{#if form?.errors?.assetId}<span class="error">{form.errors.assetId}</span>{/if}
-		</p>
+		{#if data.context}
+			<!-- 資産一覧の行から遷移: 資産は確定なので表示のみ＋hidden で送る。
+			     価格は資産単位（口座に紐づかない）のでアンカーは資産だけ。 -->
+			<input type="hidden" name="assetId" value={data.context.id} />
+			<p>
+				銘柄: {data.context.name}{data.context.symbol ? `（${data.context.symbol}）` : ''} / {data
+					.context.currency}
+			</p>
+		{:else}
+			<p>
+				<label>
+					資産
+					<select name="assetId">
+						<option value="">選択してください</option>
+						{#each data.assets as asset (asset.id)}
+							<option value={asset.id} selected={form?.values?.assetId === String(asset.id)}>
+								{asset.name}{asset.symbol ? `（${asset.symbol}）` : ''} / {asset.currency}
+							</option>
+						{/each}
+					</select>
+				</label>
+				{#if form?.errors?.assetId}<span class="error">{form.errors.assetId}</span>{/if}
+			</p>
+		{/if}
 		<p>
 			<label>
 				基準日
@@ -62,6 +73,9 @@
 			</p>
 		{/if}
 	</form>
+	{#if data.context}
+		<p><a href={resolve('/prices')}>別の資産で登録する</a></p>
+	{/if}
 {/if}
 
 <h2>直近の登録価格</h2>
